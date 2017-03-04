@@ -6,6 +6,10 @@ import Router from 'vue-router'
 import App from './App'
 import routes from './routes'
 
+window.$ = window.jQuery = require('jquery')
+window.tether = window.Tether = require('tether')
+require('bootstrap')
+
 Vue.use(Electron)
 Vue.use(Resource)
 Vue.use(Router)

@@ -1,0 +1,70 @@
+// Custom Material Dark 1.0.0
+// Based on Bootswatch Darkly
+
+
+// Create grayscale
+$gray-dark:                 #212121;
+$gray:                      #303030;
+$gray-light:                #424242;
+$gray-lighter:              #757575;
+$gray-lightest:             #BDBDBD;
+
+
+// Body
+//
+// Settings for the `<body>` element.
+
+$body-bg:       $gray-dark;
+$body-color:    rgba($white,.7);
+$inverse-bg:    $gray-dark !default;
+$inverse-color: $gray-lighter !default;
+
+
+// Fonts
+//
+// Font, line-height, and color for body text, headings, and more.
+
+$headings-color:         $white;
+
+
+// Forms
+
+$input-bg:                       $gray;
+$input-bg-disabled:              $gray-light;
+
+$input-color:                    $gray-lightest;
+$input-border-color:             transparent;
+
+$input-bg-focus:                 transparent;
+$input-color-focus:              $gray-lightest;
+
+$input-group-addon-bg:           transparent;
+
+
+// Navbar
+
+$navbar-padding-y:                  ($spacer / 2);
+
+
+// Navs
+
+$nav-disabled-link-color:       $body-color;
+
+$nav-tabs-border-color:                       transparent;
+$nav-tabs-border-width:                       $border-width !default;
+$nav-tabs-border-radius:                      $border-radius !default;
+$nav-tabs-link-hover-border-color:            $gray-lighter !default;
+$nav-tabs-active-link-hover-color:            $white;
+$nav-tabs-active-link-hover-bg:               $body-bg;
+$nav-tabs-active-link-hover-border-color:     transparent;
+
+
+// Badges
+
+$badge-padding-x:             .75em;
+$badge-padding-y:             .75em;
+
+
+// List group
+
+$list-group-active-bg:           $gray-dark;
