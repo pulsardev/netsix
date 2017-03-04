@@ -17,7 +17,8 @@ Vue.config.debug = true
 
 const router = new Router({
   scrollBehavior: () => ({ y: 0 }),
-  routes
+  routes,
+  linkActiveClass: 'active'
 })
 
 /* eslint-disable no-new */

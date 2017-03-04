@@ -3,12 +3,12 @@
     <navbar></navbar>
 
     <div class="container pt-3">
-      <h1>Welcome.</h1>
+      <router-view></router-view>
 
       <hr>
 
       <footer>
-        <p>&copy; Company 2017</p>
+        <p>&copy; Netsix 2017</p>
       </footer>
     </div>
   </div>

@@ -12,21 +12,18 @@
 
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
-            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Link</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link disabled" href="#">Disabled</a>
-          </li>
+          <router-link tag="li" to="/" class="nav-item">
+            <a class="nav-link">Home</a>
+          </router-link>
+          <router-link tag="li" to="/about" class="nav-item">
+            <a class="nav-link">About</a>
+          </router-link>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+            <a class="nav-link dropdown-toggle" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Help</a>
             <div class="dropdown-menu" aria-labelledby="dropdown01">
-              <a class="dropdown-item" href="#">Action</a>
-              <a class="dropdown-item" href="#">Another action</a>
-              <a class="dropdown-item" href="#">Something else here</a>
+              <a class="dropdown-item disabled" href="#">Guide</a>
+              <a class="dropdown-item" href="#">Reset connection</a>
+              <a class="dropdown-item" href="#">Refresh components</a>
             </div>
           </li>
         </ul>
