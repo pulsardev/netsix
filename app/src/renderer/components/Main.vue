@@ -5,11 +5,11 @@
         <button type="button" class="btn btn-primary btn-sm" data-toggle="offcanvas">Toggle nav</button>
       </p>
 
-      <div class="image pb-3">
-        <img src="../assets/800x500.png">
+      <div class="video">
+        <video controls></video>
       </div>
 
-      <div class="card">
+      <div class="card mt-3">
         <div class="card-block">
           <h4 class="card-title">Card title</h4>
           <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
@@ -36,7 +36,7 @@
           </ul>
         </div>
         <div class="card-block">
-          <h4 class="card-title">Special title treatment</h4>
+          <h4 class="card-title">Connect to a friend</h4>
           <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
           <a href="#" class="btn btn-primary">Go somewhere</a>
         </div>
@@ -65,8 +65,18 @@
 </template>
 
 <style scoped>
-  img {
+  video {
+    background-color: #292b2c;
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
-    height: auto;
+    height: 100%;
+  }
+
+  .video {
+    height: 0;
+    padding-bottom: 62.5%; /* 16:10 */
+    position: relative;
   }
 </style>
