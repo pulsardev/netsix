@@ -12,10 +12,10 @@
 
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
-          <router-link tag="li" to="/" class="nav-item">
+          <router-link tag="li" to="/" class="nav-item" exact>
             <a class="nav-link">Home</a>
           </router-link>
-          <router-link tag="li" to="/about" class="nav-item">
+          <router-link tag="li" to="/about" class="nav-item" exact>
             <a class="nav-link">About</a>
           </router-link>
           <li class="nav-item dropdown">
