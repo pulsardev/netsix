@@ -28,8 +28,9 @@
           </li>
         </ul>
         <form class="form-inline my-2 my-lg-0">
-          <span class="my-2 mr-2" style="background: rgb(66, 183, 42) none repeat scroll 0 0; border-radius: 50%; display: inline-block; height: 10px; margin-left: 4px; width: 10px;"></span>
-          <input class="form-control" type="text" placeholder="Local Peer ID">
+          <span v-if="status.isConnected" class="my-2 mr-2 status"></span>
+          <span v-if="!status.isConnected" class="my-2 mr-2 status status--error"></span>
+          <input :value="localPeerId" class="form-control" type="text" placeholder="Local Peer ID" disabled>
           <button v-if="isElectron()" class="btn btn-outline-success my-2 my-sm-0 ml-sm-2" type="button" @click="copyToClipboard">Copy</button>
         </form>
       </div>
@@ -38,15 +39,20 @@
 </template>
 
 <script>
+  import { mapState } from 'vuex'
   import { clipboard } from 'electron'
   import isElectron from '../../shared/is-electron'
 
   export default {
     name: 'navbar',
+    computed: mapState({
+      localPeerId: state => state.connection.localPeerId,
+      status: state => state.connection.status
+    }),
     methods: {
       copyToClipboard () {
         if (isElectron()) {
-          clipboard.writeText('Hello World!')
+          clipboard.writeText(this.localPeerId)
           let notification = new Notification('Netsix', {
             body: 'Local Peer ID copied to clipboard!'
           })
@@ -61,5 +67,18 @@
 <style scoped>
   img {
     width: 24px;
+  }
+
+  .status {
+    background: rgb(66, 183, 42) none repeat scroll 0 0;
+    border-radius: 50%;
+    display: inline-block;
+    height: 10px;
+    margin-left: 4px;
+    width: 10px;
+  }
+
+  .status--error {
+    background: rgb(228, 55, 37) none repeat scroll 0 0;
   }
 </style>
