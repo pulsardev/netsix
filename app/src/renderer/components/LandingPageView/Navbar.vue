@@ -5,10 +5,7 @@
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <router-link to="/" class="navbar-brand">
-        <img src="./assets/logo.png">
-        <span>Netsix</span>
-      </router-link>
+      <router-link to="/" class="navbar-brand"><img src="./assets/logo.png"> Netsix</router-link>
 
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
@@ -28,8 +25,8 @@
           </li>
         </ul>
         <form class="form-inline my-2 my-lg-0">
-          <span v-if="status.isConnected" class="my-2 mr-2 status"></span>
-          <span v-if="!status.isConnected" class="my-2 mr-2 status status--error"></span>
+          <span v-if="status.isConnected" class="my-2 mr-2 status" title="Connected"></span>
+          <span v-if="!status.isConnected" class="my-2 mr-2 status status--error" title="Disconnected"></span>
           <input :value="localPeerId" class="form-control" type="text" placeholder="Local Peer ID" disabled>
           <button v-if="isElectron" class="btn btn-outline-success my-2 my-sm-0 ml-sm-2" type="button" @click="copyToClipboard">Copy</button>
         </form>
