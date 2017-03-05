@@ -7,7 +7,7 @@
 
       <router-link to="/" class="navbar-brand">
         <img src="./assets/logo.png">
-        Netsix
+        <span>Netsix</span>
       </router-link>
 
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
@@ -28,9 +28,9 @@
           </li>
         </ul>
         <form class="form-inline my-2 my-lg-0">
-          <span class="mr-3" style="background: rgb(66, 183, 42) none repeat scroll 0 0; border-radius: 50%; display: inline-block; height: 10px; margin-left: 4px; width: 10px;"></span>
-          <input class="form-control mr-sm-2" type="text" placeholder="Search">
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+          <span class="my-2 mr-2" style="background: rgb(66, 183, 42) none repeat scroll 0 0; border-radius: 50%; display: inline-block; height: 10px; margin-left: 4px; width: 10px;"></span>
+          <input class="form-control" type="text" placeholder="Local Peer ID">
+          <button v-if="isElectron()" class="btn btn-outline-success my-2 my-sm-0 ml-sm-2" type="button" @click="copyToClipboard">Copy</button>
         </form>
       </div>
     </div>
@@ -38,8 +38,23 @@
 </template>
 
 <script>
+  import { clipboard } from 'electron'
+  import isElectron from '../../shared/is-electron'
+
   export default {
-    name: 'navbar'
+    name: 'navbar',
+    methods: {
+      copyToClipboard () {
+        if (isElectron()) {
+          clipboard.writeText('Hello World!')
+          let notification = new Notification('Netsix', {
+            body: 'Local Peer ID copied to clipboard!'
+          })
+          console.log(notification)
+        }
+      },
+      isElectron: isElectron
+    }
   }
 </script>
 
