@@ -49,7 +49,12 @@
     methods: {
       copyToClipboard () {
         if (this.isElectron) {
+          if (!localStorage.getItem('localPeerid')) {
+            localStorage.setItem('localPeerid', this.localPeerId)
+          }
+
           clipboard.writeText(this.localPeerId)
+
           // eslint-disable-next-line no-new
           new Notification('Netsix', {
             body: 'Local Peer ID copied to clipboard!'
