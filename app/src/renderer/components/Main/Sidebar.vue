@@ -4,17 +4,28 @@
       <div class="card-header">
         <ul class="nav nav-tabs card-header-tabs">
           <li class="nav-item">
-            <a class="nav-link active" href="#">Remote</a>
+            <a class="nav-link active" data-toggle="tab" href="#remote" role="tab">Remote</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Local</a>
+            <a class="nav-link" data-toggle="tab" href="#local" role="tab">Local</a>
           </li>
         </ul>
       </div>
+
       <div class="card-block">
-        <h4 class="card-title">Connect to a friend</h4>
-        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
+        <div class="tab-content">
+          <div class="tab-pane active" id="remote" role="tabpanel">
+            <h4 class="card-title">Connect to a friend</h4>
+            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+            <a href="#" class="btn btn-primary">Go somewhere</a>
+          </div>
+
+          <div class="tab-pane" id="local" role="tabpanel">
+            <h4 class="card-title">Local parameters</h4>
+            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+            <a href="#" class="btn btn-primary">Go somewhere</a>
+          </div>
+        </div>
       </div>
     </div>
 
