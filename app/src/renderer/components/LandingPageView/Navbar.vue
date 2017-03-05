@@ -31,7 +31,7 @@
           <span v-if="status.isConnected" class="my-2 mr-2 status"></span>
           <span v-if="!status.isConnected" class="my-2 mr-2 status status--error"></span>
           <input :value="localPeerId" class="form-control" type="text" placeholder="Local Peer ID" disabled>
-          <button v-if="isElectron()" class="btn btn-outline-success my-2 my-sm-0 ml-sm-2" type="button" @click="copyToClipboard">Copy</button>
+          <button v-if="isElectron" class="btn btn-outline-success my-2 my-sm-0 ml-sm-2" type="button" @click="copyToClipboard">Copy</button>
         </form>
       </div>
     </div>
@@ -41,25 +41,24 @@
 <script>
   import { mapState } from 'vuex'
   import { clipboard } from 'electron'
-  import isElectron from '../../shared/is-electron'
 
   export default {
     name: 'navbar',
     computed: mapState({
       localPeerId: state => state.connection.localPeerId,
-      status: state => state.connection.status
+      status: state => state.connection.status,
+      isElectron: state => state.configuration.isElectron
     }),
     methods: {
       copyToClipboard () {
-        if (isElectron()) {
+        if (this.isElectron) {
           clipboard.writeText(this.localPeerId)
-          let notification = new Notification('Netsix', {
+          // eslint-disable-next-line no-new
+          new Notification('Netsix', {
             body: 'Local Peer ID copied to clipboard!'
           })
-          console.log(notification)
         }
-      },
-      isElectron: isElectron
+      }
     }
   }
 </script>
