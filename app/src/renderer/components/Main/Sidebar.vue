@@ -32,42 +32,51 @@
     <div class="card mt-3">
       <div class="card-header">Collections</div>
       <div class="card-block" id="accordion" role="tablist" aria-multiselectable="true">
-        <a href="#" id="collectionHeading0" class="btn btn-secondary" data-parent="#accordion" role="tab" data-toggle="collapse" data-target="#collection0" aria-expanded="true" aria-controls="collection0"><small>C:/</small>Films</a>
-        <a href="#" id="collectionHeading1" class="btn btn-secondary collapsed" data-parent="#accordion" role="tab" data-toggle="collapse" data-target="#collection1" aria-expanded="false" aria-controls="collection1"><small>C:/Films/</small>_Temp</a>
 
-        <div class="mt-3 collapse show" role="tabpanel" aria-labelledby="collectionHeading0" id="collection0">
-          <div class="list-group">
-            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
-              <h6 class="mb-1">test.mp4</h6>
-              <small class="text-muted">5 Mo</small>
-            </a>
-            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-              <h6 class="mb-1">test2.mp4</h6>
-              <small class="text-muted">30 Mo</small>
-            </a>
-            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-              <h6 class="mb-1">test3.mp4</h6>
-              <small class="text-muted">500 Mo</small>
-            </a>
+        <div class="card">
+          <a class="btn btn-secondary" role="tab" id="headingOne" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+            C:/Films
+          </a>
+          <div id="collapseOne" class="collapse show" role="tabpanel" aria-labelledby="headingOne">
+            <div class="list-group">
+              <a href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
+                <h6 class="mb-1">test.mp4</h6>
+                <small class="text-muted">5 Mo</small>
+              </a>
+              <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+                <h6 class="mb-1">test2.mp4</h6>
+                <small class="text-muted">30 Mo</small>
+              </a>
+              <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+                <h6 class="mb-1">test3.mp4</h6>
+                <small class="text-muted">500 Mo</small>
+              </a>
+            </div>
           </div>
         </div>
 
-        <div class="mt-3 collapse" role="tabpanel" aria-labelledby="collectionHeading1" id="collection1">
-          <div class="list-group">
-            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
-              <h6 class="mb-1">test.mp4</h6>
-              <small class="text-muted">5 Mo</small>
-            </a>
-            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-              <h6 class="mb-1">test2.mp4</h6>
-              <small class="text-muted">30 Mo</small>
-            </a>
-            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-              <h6 class="mb-1">test3.mp4</h6>
-              <small class="text-muted">500 Mo</small>
-            </a>
+        <div class="card">
+          <a class="btn btn-secondary collapsed" role="tab" id="headingTwo" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+            C:/Films/Vus/HD/_Temp
+          </a>
+          <div id="collapseTwo" class="collapse" role="tabpanel" aria-labelledby="headingTwo">
+            <div class="list-group">
+              <a href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
+                <h6 class="mb-1">test.mp4</h6>
+                <small class="text-muted">5 Mo</small>
+              </a>
+              <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+                <h6 class="mb-1">test2.mp4</h6>
+                <small class="text-muted">30 Mo</small>
+              </a>
+              <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+                <h6 class="mb-1">test3.mp4</h6>
+                <small class="text-muted">500 Mo</small>
+              </a>
+            </div>
           </div>
         </div>
+
       </div>
     </div>
   </div>
