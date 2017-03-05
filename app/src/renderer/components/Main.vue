@@ -1,6 +1,6 @@
 <template>
   <div class="row row-offcanvas row-offcanvas-right no-gutters">
-    <div class="col-12 col-md-8">
+    <div class="col-12 col-lg-8">
       <p class="float-right hidden-md-up">
         <button type="button" class="btn btn-primary btn-sm" data-toggle="offcanvas">Toggle nav</button>
       </p>
@@ -20,7 +20,7 @@
       </div>
     </div>
 
-    <div class="col-6 col-md-4 sidebar-offcanvas pl-3" id="sidebar">
+    <div class="col-12 col-lg-4 sidebar-offcanvas pl-lg-3 pt-3 pt-lg-0" id="sidebar">
       <div class="card text-center">
         <div class="card-header">
           <ul class="nav nav-tabs card-header-tabs">
