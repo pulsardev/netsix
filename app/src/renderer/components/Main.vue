@@ -1,9 +1,7 @@
 <template>
   <div class="row row-offcanvas row-offcanvas-right no-gutters">
     <div class="col-12 col-lg-8">
-      <div class="video">
-        <video controls></video>
-      </div>
+      <video-player></video-player>
 
       <div class="card mt-3">
         <div class="card-block">
@@ -22,28 +20,13 @@
 
 <script>
   import Sidebar from './Main/Sidebar'
+  import VideoPlayer from './Main/VideoPlayer'
 
   export default {
     components: {
-      Sidebar
+      Sidebar,
+      VideoPlayer
     },
     name: 'main'
   }
 </script>
-
-<style scoped>
-  video {
-    background-color: #292b2c;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-  .video {
-    height: 0;
-    padding-bottom: 62.5%; /* 16:10 */
-    position: relative;
-  }
-</style>
