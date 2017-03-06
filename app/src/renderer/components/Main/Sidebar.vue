@@ -14,76 +14,47 @@
 
       <div class="card-block">
         <div class="tab-content">
-          <div class="tab-pane active" id="remote" role="tabpanel">
-            <h4 class="card-title">Connect to a friend</h4>
-            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
-          </div>
-
-          <div class="tab-pane" id="local" role="tabpanel">
-            <h4 class="card-title">Local parameters</h4>
-            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
-          </div>
+          <remote-connection class="tab-pane active" id="remote" role="tabpanel"></remote-connection>
+          <local-collections class="tab-pane" id="local" role="tabpanel"></local-collections>
         </div>
       </div>
     </div>
 
     <div class="card mt-3">
       <div class="card-header">Collections</div>
-      <div class="card-block" id="accordion" role="tablist" aria-multiselectable="true">
-
-        <div class="card">
-          <a class="btn btn-secondary" role="tab" id="headingOne" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-            C:/Films
-          </a>
-          <div id="collapseOne" class="collapse show" role="tabpanel" aria-labelledby="headingOne">
-            <div class="list-group">
-              <a href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
-                <h6 class="mb-1">test.mp4</h6>
-                <small class="text-muted">5 Mo</small>
-              </a>
-              <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-                <h6 class="mb-1">test2.mp4</h6>
-                <small class="text-muted">30 Mo</small>
-              </a>
-              <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-                <h6 class="mb-1">test3.mp4</h6>
-                <small class="text-muted">500 Mo</small>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <a class="btn btn-secondary collapsed" role="tab" id="headingTwo" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-            C:/Films/Vus/HD/_Temp
-          </a>
-          <div id="collapseTwo" class="collapse" role="tabpanel" aria-labelledby="headingTwo">
-            <div class="list-group">
-              <a href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
-                <h6 class="mb-1">test.mp4</h6>
-                <small class="text-muted">5 Mo</small>
-              </a>
-              <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-                <h6 class="mb-1">test2.mp4</h6>
-                <small class="text-muted">30 Mo</small>
-              </a>
-              <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-                <h6 class="mb-1">test3.mp4</h6>
-                <small class="text-muted">500 Mo</small>
-              </a>
-            </div>
-          </div>
-        </div>
-
-      </div>
+      <collections :collection-data="remoteCollections" collection-type="remote" class="card-block"></collections>
     </div>
   </div>
 </template>
 
 <script>
+  import Collections from './Sidebar/Collections'
+  import LocalCollections from './Sidebar/LocalCollections'
+  import RemoteConnection from './Sidebar/RemoteConnection'
+
   export default {
-    name: 'sidebar'
+    components: {
+      Collections, LocalCollections, RemoteConnection
+    },
+    name: 'sidebar',
+    data () {
+      return {
+        remoteCollections: {
+          'C:/': [
+            {filename: 'test.mp4', size: '5000'},
+            {filename: 'test2.mp4', size: '30000'},
+            {filename: 'test3.mp4', size: '500000'}
+          ],
+          'C:/Films/_Temp/': [
+            {filename: 'test.mp4', size: '5000'},
+            {filename: 'test2.mp4', size: '30000'}
+          ],
+          'C:/Films/Vus/HD/_Temp/': [
+            {filename: 'test2.mp4', size: '30000'},
+            {filename: 'test3.mp4', size: '500000'}
+          ]
+        }
+      }
+    }
   }
 </script>
