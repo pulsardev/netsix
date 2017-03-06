@@ -58,12 +58,7 @@
 
               console.log('LocalCollections: addCollection(): acceptedFiles', acceptedFiles)
 
-              if (db.get('localCollections').value()) {
-                db.get('localCollections').set(folder, acceptedFiles).write()
-              } else {
-                db.set('localCollections', {[folder]: acceptedFiles}).write()
-              }
-
+              db.get('localCollections').set(folder, acceptedFiles).write()
               this.$store.commit('UPDATE_LOCAL_COLLECTIONS', Object.assign({}, db.get('localCollections').value()))
             }
           })
