@@ -3,8 +3,8 @@ import * as types from '../mutation-types'
 import { db } from '../../shared/db'
 
 const state = {
-  localCollections: db.get('localCollections').value() ? db.get('localCollections').value() : null,
-  remoteCollections: null
+  localCollections: db.get('localCollections').value() ? db.get('localCollections').value() : {},
+  remoteCollections: {}
 }
 
 const mutations = {

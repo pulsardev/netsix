@@ -6,7 +6,8 @@
 
 <script>
   export default {
-    name: 'video-player'
+    name: 'video-player',
+    props: ['file']
   }
 </script>
 
