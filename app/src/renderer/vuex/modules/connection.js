@@ -1,8 +1,8 @@
 import * as types from '../mutation-types'
 
 const state = {
-  localPeerId: localStorage.getItem('localPeerid') ? localStorage.getItem('localPeerid') : Math.random().toString(36).substring(7),
-  remotePeerId: '',
+  localPeerId: localStorage.getItem('localPeerId') ? localStorage.getItem('localPeerId') : Math.random().toString(36).substring(7),
+  remotePeerId: localStorage.getItem('remotePeerId') ? localStorage.getItem('remotePeerId') : '',
   status: {
     isConnected: false,
     isConnecting: false

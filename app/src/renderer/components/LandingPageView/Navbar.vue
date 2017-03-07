@@ -49,8 +49,8 @@
     methods: {
       copyToClipboard () {
         if (this.isElectron) {
-          if (!localStorage.getItem('localPeerid')) {
-            localStorage.setItem('localPeerid', this.localPeerId)
+          if (!localStorage.getItem('localPeerId')) {
+            localStorage.setItem('localPeerId', this.localPeerId)
           }
 
           clipboard.writeText(this.localPeerId)
