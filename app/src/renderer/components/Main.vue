@@ -1,7 +1,7 @@
 <template>
   <div class="row row-offcanvas row-offcanvas-right no-gutters">
     <div class="col-12 col-lg-8">
-      <video-player></video-player>
+      <video-player :file="selectedFile"></video-player>
 
       <div class="card mt-3">
         <div class="card-block">
@@ -21,12 +21,16 @@
 <script>
   import Sidebar from './Main/Sidebar'
   import VideoPlayer from './Main/VideoPlayer'
+  import { mapState } from 'vuex'
 
   export default {
     components: {
       Sidebar,
       VideoPlayer
     },
-    name: 'main'
+    name: 'main',
+    computed: mapState({
+      selectedFile: state => state.video.selectedFile
+    })
   }
 </script>

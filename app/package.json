@@ -5,6 +5,7 @@
   "main": "./dist/main.js",
   "dependencies": {
     "bootstrap": "^4.0.0-alpha.6",
+    "buffer": "^5.0.5",
     "filesize": "^3.5.5",
     "lowdb": "^0.15.5",
     "vue": "^2.1.10",

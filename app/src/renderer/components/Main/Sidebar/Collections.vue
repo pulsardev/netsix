@@ -11,7 +11,7 @@
       </div>
       <div :id="'collapse' + index + stringifyPath(key)" class="mt-1 collapse" role="tabpanel" :aria-labelledby="'heading' + index + stringifyPath(key)">
         <div class="list-group">
-          <a v-if="value.length > 0" v-for="item in value" href="#" class="list-group-item list-group-item-action flex-column align-items-start" :class="{ active: selectedFile === key + item.filename }">
+          <a @click.prevent="selectFile(key, item)" v-if="value.length > 0" v-for="item in value" href="#" class="list-group-item list-group-item-action flex-column align-items-start" :class="{ active: selectedFile === key + item.filename }">
             <h6 class="mb-1">{{ item.filename }}</h6>
             <small class="text-muted">{{ filesize(item.size) }}</small>
           </a>
@@ -46,6 +46,13 @@
       deleteCollection (collection) {
         db.unset('localCollections.' + collection).write()
         this.$store.commit('UPDATE_LOCAL_COLLECTIONS', Object.assign({}, db.get('localCollections').value()))
+      },
+      selectFile (collection, file) {
+        this.$store.commit('UPDATE_SELECTED_FILE', Object.assign({}, {
+          type: this.collectionType,
+          path: collection,
+          ...file
+        }))
       }
     }
   }
