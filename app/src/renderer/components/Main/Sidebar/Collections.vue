@@ -48,11 +48,11 @@
         this.$store.commit('UPDATE_LOCAL_COLLECTIONS', Object.assign({}, db.get('localCollections').value()))
       },
       selectFile (collection, file) {
-        this.$store.commit('UPDATE_SELECTED_FILE', Object.assign({}, {
+        this.$store.dispatch('handleGetFileRequest', {
           type: this.collectionType,
           path: collection,
           ...file
-        }))
+        })
       }
     }
   }
