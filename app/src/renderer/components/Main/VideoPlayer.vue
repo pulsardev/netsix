@@ -14,6 +14,8 @@
   let videoBuffer = []
   let index = 0
   let numberOfChunks = 0
+  let segmentDuration = 0
+  let chunkSize = 16 * 1024
 
   export default {
     name: 'video-player',
@@ -38,19 +40,36 @@
         video.pause()
         video.currentTime = 0
 
-        video.play()
+        video.addEventListener('timeupdate', this.checkBuffer)
+        video.addEventListener('canplay', () => {
+          segmentDuration = video.duration / numberOfChunks
+          video.play()
+        })
       },
       nextSegment: function () {
-        this.appendToBuffer(videoBuffer.shift())
-        index++
-        if (index > numberOfChunks) {
-          sourceBuffer.removeEventListener('updateend', this.nextSegment)
+        if (this.shouldFetchNextSegment()) {
+          this.appendToBuffer(videoBuffer.shift())
+          index++
+          if (index > numberOfChunks) {
+            sourceBuffer.removeEventListener('updateend', this.nextSegment)
+            video.removeEventListener('timeupdate', this.checkBuffer)
+          }
         }
       },
       appendToBuffer: function (videoChunk) {
         // TODO: handle the "sourceBuffer is full" error, maybe by looking at https://github.com/nickdesaulniers/netfix/blob/gh-pages/demo/bufferWhenNeeded.html
         if (videoChunk) {
           sourceBuffer.appendBuffer(videoChunk)
+        }
+      },
+      shouldFetchNextSegment: function () {
+        return (video.currentTime > segmentDuration * index * 0.8) || (chunkSize * index < 64 * 1024 * 1024)
+      },
+      checkBuffer: function () {
+        if (this.shouldFetchNextSegment()) {
+          console.log('shouldFetchNextSegment: video.currentTime', video.currentTime)
+          console.log('shouldFetchNextSegment: segmentDuration, index, segmentDuration * index * 0.8', segmentDuration, index, segmentDuration * index * 0.8)
+          this.nextSegment()
         }
       }
     },
@@ -69,7 +88,6 @@
 
         if (this.videoBuffer.length === 0) {
           this.canAppendChunks = false
-          index = 0
         }
       },
       canAppendChunks: function () {
@@ -93,6 +111,9 @@
         ms = new MediaSource()
         video = this.$refs.video
         video.src = URL.createObjectURL(ms)
+
+        // Reset
+        index = 0
 
         // https://github.com/bitmovin/mse-demo/blob/master/index.html
         ms.addEventListener('sourceopen', this.onMediaSourceOpen)
