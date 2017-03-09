@@ -6,10 +6,14 @@ const state = {
   status: {
     isConnected: false,
     isConnecting: false
-  }
+  },
+  useSignaling: false
 }
 
 const mutations = {
+  [types.UPDATE_LOCAL_PEER_ID] (state, payload) {
+    state.localPeerId = payload
+  },
   [types.UPDATE_REMOTE_PEER_ID] (state, payload) {
     state.remotePeerId = payload
   },
@@ -21,6 +25,9 @@ const mutations = {
   },
   [types.UPDATE_IS_CONNECTING] (state, payload) {
     state.status.isConnecting = payload
+  },
+  [types.TOGGLE_SIGNALING] (state) {
+    state.status.useSignaling = !state.status.useSignaling
   }
 }
 

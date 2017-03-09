@@ -26,9 +26,10 @@
         </ul>
         <form class="form-inline my-2 my-lg-0">
           <span v-if="status.isConnected" class="my-2 mr-2 status" title="Connected"></span>
-          <span v-if="!status.isConnected" class="my-2 mr-2 status status--error" title="Disconnected"></span>
+          <span v-if="status.isConnecting" class="my-2 mr-2 status status--pending" title="Connecting"></span>
+          <span v-if="!status.isConnected && !status.isConnecting" class="my-2 mr-2 status status--error" title="Disconnected"></span>
           <input :value="localPeerId" class="form-control" type="text" placeholder="Local Peer ID" disabled>
-          <button v-if="isElectron" class="btn btn-outline-success my-2 my-sm-0 ml-sm-2" type="button" @click="copyToClipboard">Copy</button>
+          <button v-if="isElectron" class="btn btn-outline-success my-2 my-sm-0 ml-sm-2" type="button" @click="copyToClipboard" :disabled="status.isConnecting">Copy</button>
         </form>
       </div>
     </div>
@@ -77,6 +78,10 @@
     height: 10px;
     margin-left: 4px;
     width: 10px;
+  }
+
+  .status--pending {
+    background: rgb(243, 156, 18) none repeat scroll 0 0;
   }
 
   .status--error {
