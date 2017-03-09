@@ -42,7 +42,8 @@
     computed: mapState({
       localPeerId: state => state.connection.localPeerId,
       remotePeerId: state => state.connection.remotePeerId,
-      status: state => state.connection.status
+      status: state => state.connection.status,
+      localCollections: state => state.collections.localCollections
     }),
     created () {
       // pubnub.subscribe({channels: [this.localPeerId]})
@@ -71,6 +72,11 @@
         // got a data channel message
         console.log('got a message from clientPeer: ' + data)
       })
+
+      window.hostPeer.on('connect', () => {
+        // wait for 'connect' event before using the data channel
+        window.hostPeer.send(JSON.stringify(this.localCollections))
+      })
     },
     methods: {
       updateRemotePeerId (e) {
@@ -96,6 +102,11 @@
             console.log('clientPeer: signal', data)
             // when clientPeer has signaling data, give it to hostPeer somehow
             this.wrtcSignal = JSON.stringify(data) // window.hostPeer.signal(data)
+          })
+
+          window.clientPeer.on('data', (data) => {
+            // got a data channel message
+            console.log('got a message from hostPeer: ' + data)
           })
 
           window.clientPeer.on('connect', () => {
