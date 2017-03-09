@@ -41,46 +41,14 @@
       window.hostPeer = new SimplePeer({trickle: false, objectMode: true})
 
       // Client peer listeners
-      window.clientPeer.on('signal', (data) => {
-        console.log('clientPeer: signal', data)
-
-        this.$store.commit('UPDATE_IS_CONNECTING', false)
-
-        // when clientPeer has signaling data, give it to hostPeer somehow
-        this.$store.commit('UPDATE_LOCAL_PEER_ID', JSON.stringify(data)) // window.hostPeer.signal(data)
-      })
-
-      window.clientPeer.on('data', (data) => {
-        // got a data channel message
-        console.log('got a message from hostPeer: ' + data)
-      })
-
-      window.clientPeer.on('connect', () => {
-        this.$store.commit('UPDATE_IS_CONNECTED', true)
-
-        // wait for 'connect' event before using the data channel
-        window.clientPeer.send('hey hostPeer, how is it going?')
-      })
+      window.clientPeer.on('signal', data => this.handleSignal(window.clientPeer, data))
+      window.clientPeer.on('connect', () => this.handleConnect(window.clientPeer))
+      window.clientPeer.on('data', (data) => this.handleData(window.clientPeer, data))
 
       // Host peer listeners
-      window.hostPeer.on('signal', (data) => {
-        console.log('hostPeer: signal', data)
-
-        // when hostPeer has signaling data, give it to clientPeer somehow
-        this.$store.commit('UPDATE_REMOTE_PEER_ID', JSON.stringify(data)) // window.clientPeer.signal(data)
-      })
-
-      window.hostPeer.on('data', (data) => {
-        // got a data channel message
-        console.log('got a message from clientPeer: ' + data)
-      })
-
-      window.hostPeer.on('connect', () => {
-        this.$store.commit('UPDATE_IS_CONNECTED', true)
-
-        // wait for 'connect' event before using the data channel
-        window.hostPeer.send(JSON.stringify(this.localCollections))
-      })
+      window.hostPeer.on('signal', data => this.handleSignal(window.hostPeer, data))
+      window.hostPeer.on('connect', () => this.handleConnect(window.hostPeer))
+      window.hostPeer.on('data', (data) => this.handleData(window.hostPeer, data))
     },
     methods: {
       signal () {
@@ -105,6 +73,28 @@
             body: 'Signal copied to clipboard!'
           })
         }
+      },
+      handleSignal (peer, data) {
+        console.log('PeerConnection: signal: peer, data', peer, data)
+
+        this.$store.commit('UPDATE_IS_CONNECTING', false)
+
+        if (peer.initiator) {
+          // when clientPeer has signaling data, give it to hostPeer somehow
+          this.$store.commit('UPDATE_LOCAL_PEER_ID', JSON.stringify(data)) // window.hostPeer.signal(data)
+        } else {
+          // when hostPeer has signaling data, give it to clientPeer somehow
+          this.$store.commit('UPDATE_REMOTE_PEER_ID', JSON.stringify(data)) // window.clientPeer.signal(data)
+        }
+      },
+      handleConnect (peer) {
+        this.$store.commit('UPDATE_IS_CONNECTED', true)
+
+        // wait for 'connect' event before using the data channel
+        peer.send(JSON.stringify(this.localCollections))
+      },
+      handleData (peer, data) {
+        console.log('PeerConnection: data: peer.initiator, data', peer.initiator, data)
       }
     }
   }
