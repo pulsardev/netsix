@@ -8,6 +8,8 @@
     "buffer": "^5.0.5",
     "filesize": "^3.5.5",
     "lowdb": "^0.15.5",
+    "pubnub": "^4.5.0",
+    "simple-peer": "^7.0.0",
     "vue": "^2.1.10",
     "vue-electron": "^1.0.6",
     "vue-resource": "^1.0.3",

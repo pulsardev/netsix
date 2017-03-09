@@ -13,8 +13,14 @@ const mutations = {
   [types.UPDATE_REMOTE_PEER_ID] (state, payload) {
     state.remotePeerId = payload
   },
-  [types.SET_CONNECTION_STATUS] (state, payload) {
+  [types.UPDATE_CONNECTION_STATUS] (state, payload) {
     state.status = payload
+  },
+  [types.UPDATE_IS_CONNECTED] (state, payload) {
+    state.status.isConnected = payload
+  },
+  [types.UPDATE_IS_CONNECTING] (state, payload) {
+    state.status.isConnecting = payload
   }
 }
 

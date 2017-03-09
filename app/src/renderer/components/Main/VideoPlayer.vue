@@ -57,7 +57,6 @@
         }
       },
       appendToBuffer: function (videoChunk) {
-        // TODO: handle the "sourceBuffer is full" error, maybe by looking at https://github.com/nickdesaulniers/netfix/blob/gh-pages/demo/bufferWhenNeeded.html
         if (videoChunk) {
           sourceBuffer.appendBuffer(videoChunk)
         }
