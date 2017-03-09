@@ -1,19 +1,23 @@
 <template>
-  <form class="form-inline justify-content-center">
-    <div class="input-group">
-      <input v-model="signalPayload" class="form-control" type="text" placeholder="Enter a WebRTC signal">
-      <span class="input-group-btn">
+  <div>
+    <form class="form-inline justify-content-center">
+      <div class="input-group">
+        <input v-model="signalPayload" class="form-control" type="text" placeholder="Enter a WebRTC signal">
+        <span class="input-group-btn">
         <button @click="signal()" class="btn btn-primary" type="button" :disabled="signalPayload === ''">Signal</button>
       </span>
-    </div>
+      </div>
+    </form>
 
-    <div v-if="remotePeerId" class="input-group mt-2">
-      <input v-model="remotePeerId" class="form-control" type="text" disabled>
-      <span class="input-group-btn">
+    <form class="form-inline justify-content-center mt-2">
+      <div v-if="remotePeerId" class="input-group">
+        <input v-model="remotePeerId" class="form-control" type="text" disabled>
+        <span class="input-group-btn">
         <button v-if="isElectron" @click="copySignal" class="btn btn-primary" type="button">Copy</button>
       </span>
-    </div>
-  </form>
+      </div>
+    </form>
+  </div>
 </template>
 
 <script>
