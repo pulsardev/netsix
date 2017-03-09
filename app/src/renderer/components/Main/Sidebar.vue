@@ -28,6 +28,7 @@
 </template>
 
 <script>
+  import { mapState } from 'vuex'
   import Collections from './Sidebar/Collections'
   import LocalCollections from './Sidebar/LocalCollections'
   import RemoteConnection from './Sidebar/RemoteConnection'
@@ -37,24 +38,8 @@
       Collections, LocalCollections, RemoteConnection
     },
     name: 'sidebar',
-    data () {
-      return {
-        remoteCollections: {
-          'C:\\': [
-            {filename: 'test.mp4', size: '5000'},
-            {filename: 'test2.mp4', size: '30000'},
-            {filename: 'test3.mp4', size: '500000'}
-          ],
-          'C:\\Films\\_Temp\\': [
-            {filename: 'test.mp4', size: '5000'},
-            {filename: 'test2.mp4', size: '30000'}
-          ],
-          'C:\\Films\\Vus\\HD\\_Temp\\': [
-            {filename: 'test2.mp4', size: '30000'},
-            {filename: 'test3.mp4', size: '500000'}
-          ]
-        }
-      }
-    }
+    computed: mapState({
+      remoteCollections: state => state.collections.remoteCollections
+    })
   }
 </script>

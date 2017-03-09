@@ -88,13 +88,38 @@
         }
       },
       handleConnect (peer) {
+        console.log('PeerConnection: connect: peer.initiator', peer.initiator)
+
         this.$store.commit('UPDATE_IS_CONNECTED', true)
 
         // wait for 'connect' event before using the data channel
-        peer.send(JSON.stringify(this.localCollections))
+        peer.send(JSON.stringify({
+          type: 'COLLECTIONS',
+          payload: this.localCollections
+        }))
       },
       handleData (peer, data) {
         console.log('PeerConnection: data: peer.initiator, data', peer.initiator, data)
+
+        if (typeof data === 'string') {
+          try {
+            let message = JSON.parse(data)
+
+            switch (message.type) {
+              case 'COLLECTIONS':
+                // Handle the received collections
+                this.$store.commit('UPDATE_REMOTE_COLLECTIONS', Object.assign({}, message.payload))
+                break
+              default:
+                console.warn('PeerConnection: data: unknown type received')
+            }
+          } catch (e) {
+            // It's a pure string, not a stringified JSON object
+            console.err(e)
+          }
+        } else {
+          // It's a video chunk
+        }
       }
     }
   }
