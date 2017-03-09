@@ -4,12 +4,12 @@
 
     <div v-if="Object.keys(collectionData).length > 0" v-for="(value, key, index) in collectionData" class="card" :class="{ 'mb-1': index !== Object.keys(collectionData).length - 1 }">
       <div class="btn-group">
-        <a class="btn btn-block btn-secondary" role="tab" :id="'heading' + index + stringifyPath(key)" data-toggle="collapse" data-parent="#accordion" :href="'#collapse' + index + stringifyPath(key)" aria-expanded="true" :aria-controls="'collapse' + index + stringifyPath(key)">{{ key }}</a>
+        <a class="btn btn-block btn-secondary" role="tab" :id="'heading' + uuids[index]" data-toggle="collapse" data-parent="#accordion" :href="'#collapse' + uuids[index]" aria-expanded="true" :aria-controls="'collapse' + uuids[index]">{{ key }}</a>
         <button v-if="collectionType === 'local'" @click="deleteCollection(key)" class="btn btn-danger" type="button">
           <span class="close" aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div :id="'collapse' + index + stringifyPath(key)" class="mt-1 collapse" role="tabpanel" :aria-labelledby="'heading' + index + stringifyPath(key)">
+      <div :id="'collapse' + uuids[index]" class="mt-1 collapse" role="tabpanel" :aria-labelledby="'heading' + uuids[index]">
         <div class="list-group">
           <a @click.prevent="selectFile(key, item)" v-if="value.length > 0" v-for="item in value" href="#" class="list-group-item list-group-item-action flex-column align-items-start" :class="{ active: selectedFile === key + item.filename }">
             <h6 class="mb-1">{{ item.filename }}</h6>
@@ -26,9 +26,10 @@
 </template>
 
 <script>
-  import path from 'path'
   import filesize from 'filesize'
   import { db } from '../../../shared/db'
+
+  const uuidV4 = require('uuid/v4')
 
   export default {
     name: 'collections',
@@ -38,10 +39,18 @@
         selectedFile: 'C:/test.mp4'
       }
     },
+    computed: {
+      // Generate unique UUIDs for each collection
+      uuids: function () {
+        let uuids = []
+        for (let i = 0; i < Object.keys(this.collectionData).length; i++) {
+          uuids.push(uuidV4())
+        }
+        return uuids
+      }
+    },
     methods: {
-      stringifyPath (folder) {
-        return folder.replace(new RegExp('\\' + path.sep, 'g'), '').replace(new RegExp(':', 'g'), '').toLowerCase()
-      },
+      uuidV4: uuidV4,
       filesize: filesize,
       deleteCollection (collection) {
         db.unset('localCollections.' + collection).write()
