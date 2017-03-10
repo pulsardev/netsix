@@ -71,6 +71,10 @@
     width: 24px;
   }
 
+  .navbar {
+    box-shadow: 0 2px 3px rgba(17, 17, 17, .1);
+  }
+
   .status {
     background: rgb(66, 183, 42) none repeat scroll 0 0;
     border-radius: 50%;
