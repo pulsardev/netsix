@@ -57,11 +57,26 @@
         this.$store.commit('UPDATE_LOCAL_COLLECTIONS', Object.assign({}, db.get('localCollections').value()))
       },
       selectFile (collection, file) {
-        this.$store.dispatch('handleGetFileRequest', {
-          type: this.collectionType,
-          path: collection,
-          ...file
-        })
+        if (this.collectionType === 'local') {
+          this.$store.dispatch('handleGetFileRequest', {
+            type: this.collectionType,
+            path: collection,
+            ...file
+          })
+        } else {
+          let peer = window.clientPeer._pcReady ? window.clientPeer : window.hostPeer
+
+          let message = {
+            type: 'GET_FILE_REQUEST',
+            payload: {
+              type: this.collectionType,
+              path: collection,
+              ...file
+            }
+          }
+
+          peer.send(JSON.stringify(message))
+        }
       }
     }
   }

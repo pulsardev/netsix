@@ -2,27 +2,23 @@ import * as types from '../mutation-types'
 import * as childProcess from 'child_process'
 import path from 'path'
 import * as fs from 'fs'
+import { bus } from '../../shared/bus'
 
 const state = {
   selectedFile: {},
-  videoBuffer: []
+  chunkSize: 10 * 1024,
+  downloadBitrate: 0
 }
 
 const mutations = {
   [types.UPDATE_SELECTED_FILE] (state, payload) {
     state.selectedFile = payload
-  },
-  [types.UDPATE_VIDEO_BUFFER] (state, payload) {
-    state.videoBuffer = payload
   }
 }
 
 const actions = {
   handleGetFileRequest: ({commit}, selectedFile) => {
     console.log('handleGetFileRequest', selectedFile)
-
-    // Empty the buffer
-    commit(types.UDPATE_VIDEO_BUFFER, [])
 
     // Create a directory to store fragmented files if it doesn't exist already
     let fragmentedFilesDirectory = path.join(selectedFile.path, '.netsix')
@@ -51,29 +47,56 @@ const actions = {
         let fileInfo = JSON.parse(childProcess.spawnSync('mp4info', ['--format', 'json', path.join(fragmentedFilesDirectory, destinationFile)], {encoding: 'utf8'}).stdout)
         console.log('fileInfo', fileInfo)
 
-        commit(types.UPDATE_SELECTED_FILE, Object.assign({}, {
+        let size = fs.statSync(path.join(fragmentedFilesDirectory, destinationFile)).size
+        let totalChunks = Math.ceil(size / state.chunkSize)
+
+        let file = {
           ...selectedFile,
           path: fragmentedFilesDirectory,
           filename: destinationFile,
+          size: size,
+          totalChunks: totalChunks,
           information: fileInfo
-        }))
+        }
 
-        // Finally, read the file chunk by chunk, store the chunks and send them
-        let readStream = fs.createReadStream(path.join(fragmentedFilesDirectory, destinationFile), {highWaterMark: 16 * 1024})
+        commit(types.UPDATE_SELECTED_FILE, Object.assign({}, file))
 
-        let temporaryVideoBuffer = []
-        readStream.on('data', function (chunk) {
-          console.log('readStream: data', chunk.byteLength)
-          temporaryVideoBuffer.push(chunk)
-          // Ideally, we should send the chunks to the other peer here
-        }).on('end', function () {
-          commit(types.UDPATE_VIDEO_BUFFER, temporaryVideoBuffer)
-          // We can now send the chunks contained in state.videoBuffer
-          console.log('readStream: end')
-        })
+        // Send the file information to the other peer if it's a remote request
+        let peer = window.clientPeer._pcReady ? window.clientPeer : window.hostPeer
+        if (selectedFile.type === 'remote') {
+          peer.send(JSON.stringify({
+            type: 'SEND_FILE_INFORMATION',
+            payload: file
+          }))
+        } else {
+          readAndSendFile(commit, file)
+        }
       }
     })
+  },
+  handleAckFileInformation: ({commit}, file) => {
+    console.log('handleAckFileInformation', file)
+    readAndSendFile(commit, file)
   }
+}
+
+const readAndSendFile = function (commit, file) {
+  // Finally, read the file chunk by chunk, store the chunks and send them
+  let readStream = fs.createReadStream(path.join(file.path, file.filename), {highWaterMark: state.chunkSize})
+
+  readStream.on('data', function (chunk) {
+    console.log('readStream: data', chunk.byteLength)
+    // Ideally, we should send the chunks to the other peer here
+    if (file.type === 'remote') {
+      let peer = window.clientPeer._pcReady ? window.clientPeer : window.hostPeer
+      peer.send(chunk)
+    } else {
+      bus.$emit('video:chunk', chunk)
+    }
+  }).on('end', function () {
+    // We can now send the chunks contained in state.videoBuffer
+    console.log('readStream: end')
+  })
 }
 
 export default {

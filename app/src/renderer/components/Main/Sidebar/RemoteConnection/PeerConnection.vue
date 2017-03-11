@@ -24,6 +24,7 @@
   import { mapState } from 'vuex'
   import SimplePeer from 'simple-peer'
   import { clipboard } from 'electron'
+  import { bus } from '../../../../shared/bus'
 
   export default {
     name: 'peer-connection',
@@ -110,11 +111,10 @@
         }))
       },
       handleData (peer, data) {
-        console.log('PeerConnection: data: peer.initiator, data', peer.initiator, data)
-
         if (typeof data === 'string') {
           try {
             let message = JSON.parse(data)
+            console.log('PeerConnection: data: peer.initiator, message', peer.initiator, message)
 
             switch (message.type) {
               case 'COLLECTIONS':
@@ -128,15 +128,28 @@
                   from: 'remote'
                 })
                 break
+              case 'GET_FILE_REQUEST':
+                // Handle the received file request
+                this.$store.dispatch('handleGetFileRequest', message.payload)
+                break
+              case 'SEND_FILE_INFORMATION':
+                // Handle the received file information
+                this.$store.commit('UPDATE_SELECTED_FILE', Object.assign({}, message.payload))
+                break
+              case 'ACK_FILE_INFORMATION':
+                // Handle the received file acknowledgment
+                this.$store.dispatch('handleAckFileInformation', message.payload)
+                break
               default:
                 console.warn('PeerConnection: data: unknown type received', message.type)
             }
           } catch (e) {
             // It's a pure string, not a stringified JSON object
-            console.error(e)
+            console.error(e, data)
           }
         } else {
           // It's a video chunk
+          bus.$emit('video:chunk', data)
         }
       },
       handleClose (peer) {
