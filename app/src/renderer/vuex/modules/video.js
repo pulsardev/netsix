@@ -6,7 +6,7 @@ import { bus } from '../../shared/bus'
 
 const state = {
   selectedFile: {},
-  chunkSize: 10 * 1024,
+  chunkSize: 64 * 1024,
   downloadBitrate: 0
 }
 
@@ -89,13 +89,13 @@ const readAndSendFile = function (commit, file) {
     // Ideally, we should send the chunks to the other peer here
     if (file.type === 'remote') {
       let peer = window.clientPeer._pcReady ? window.clientPeer : window.hostPeer
-      if (peer._channel.bufferedAmount > 0) console.log('readStream: bufferedamount', peer._channel.bufferedAmount)
       peer.send(chunk)
-      if (peer._channel.bufferedAmount >= 8 * 1024) {
+      if (peer._channel.bufferedAmount > 0) console.log('readStream: bufferedamount', peer._channel.bufferedAmount)
+      if (peer._channel.bufferedAmount >= 16 * 1024 * 1024) {
         readStream.pause()
         setTimeout(() => {
           readStream.resume()
-        }, 50)
+        }, 100)
       }
     } else {
       bus.$emit('video:chunk', chunk)

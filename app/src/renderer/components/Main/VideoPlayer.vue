@@ -95,7 +95,7 @@
       },
       shouldFetchNextSegment: function () {
         let isCurrentTimeBehindLimit = video.currentTime > chunkDuration * index * 0.8
-        let canAppendSafely = this.chunkSize * index < 64 * 1024 * 1024
+        let canAppendSafely = this.chunkSize * index < 128 * 1024 * 1024
         return (isCurrentTimeBehindLimit || canAppendSafely) && !sourceBuffer.updating && this.videoBuffer.length > 0
       },
       checkBuffer: function () {
