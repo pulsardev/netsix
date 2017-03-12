@@ -39,7 +39,6 @@
       video = this.$refs.video
 
       bus.$on('video:chunk', (videoChunk) => {
-        console.log('videoBuffer: bus: on')
         if (index === 0) {
           this.appendToBuffer(videoChunk)
           index++
