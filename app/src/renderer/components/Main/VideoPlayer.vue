@@ -132,7 +132,7 @@
         video.src = URL.createObjectURL(ms)
 
         // Reset
-        this.receivedChunks = 0
+        Object.assign(this.$data, this.$options.data())
         speed = speedometer()
 
         // https://github.com/bitmovin/mse-demo/blob/master/this.receivedChunks.html

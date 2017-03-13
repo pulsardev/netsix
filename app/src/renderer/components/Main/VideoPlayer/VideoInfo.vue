@@ -8,11 +8,12 @@
         <span class="badge badge-pill badge-success">{{ codecs.audio }}</span>
         <span class="badge badge-pill badge-default">{{ receivedChunks }} / {{ file.totalChunks }}</span>
         <span class="badge badge-pill badge-default">{{ filesize(receivedSize) }} / {{ filesize(file.size) }}</span>
+        <span class="badge badge-pill badge-default">{{ receivedPercentage }} %</span>
         <span class="badge badge-pill badge-info">{{ filesize(downloadBitrate) }}/s</span>
       </p>
-      <pre>{{ file }}</pre>
-      <a href="#" class="card-link">Card link</a>
-      <a href="#" class="card-link">Another link</a>
+      <div class="progress">
+        <div class="progress-bar" role="progressbar" :style="{ width: receivedPercentage + '%' }" style="height: 2px;" :aria-valuenow="receivedPercentage" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
     </div>
   </div>
 </template>
@@ -24,9 +25,14 @@
   export default {
     name: 'video-info',
     props: ['receivedSize', 'receivedChunks', 'downloadBitrate', 'codecs'],
-    computed: mapState({
-      file: state => state.video.selectedFile
-    }),
+    computed: {
+      receivedPercentage: function () {
+        return parseInt(this.receivedSize * 100 / this.file.size)
+      },
+      ...mapState({
+        file: state => state.video.selectedFile
+      })
+    },
     methods: {
       filesize: filesize
     }
