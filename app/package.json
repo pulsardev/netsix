@@ -11,6 +11,7 @@
     "node-uuid": "^1.4.7",
     "pubnub": "^4.5.0",
     "simple-peer": "^7.0.0",
+    "speedometer": "^1.0.0",
     "vue": "^2.1.10",
     "vue-electron": "^1.0.6",
     "vue-resource": "^1.0.3",

@@ -1,26 +1,35 @@
 <template>
-  <div class="video-player">
-    <video ref="video" controls></video>
+  <div>
+    <div class="video-player">
+      <video ref="video" controls></video>
+    </div>
+
+    <video-info v-if="Object.keys(file).length > 0" :received-size="receivedSize" :received-chunks="receivedChunks" :codecs="codecs" class="mt-3"></video-info>
   </div>
 </template>
 
 <script>
   import { mapState } from 'vuex'
   import { bus } from '../../shared/bus'
+  import VideoInfo from './VideoPlayer/VideoInfo'
 
   let ms
   let video
   let sourceBuffer
-  let index = 0
   let chunkDuration = 0
 
   export default {
     name: 'video-player',
     props: ['file'],
+    components: {
+      VideoInfo
+    },
     data () {
       return {
         canAppendChunks: false,
-        videoBuffer: []
+        videoBuffer: [],
+        receivedChunks: 0,
+        receivedSize: 0
       }
     },
     computed: {
@@ -39,12 +48,13 @@
       video = this.$refs.video
 
       bus.$on('video:chunk', (videoChunk) => {
-        if (index === 0) {
+        this.receivedSize += videoChunk.byteLength
+        if (this.receivedChunks === 0) {
           this.appendToBuffer(videoChunk)
-          index++
+          this.receivedChunks++
         } else {
           this.videoBuffer.push(videoChunk)
-          if (this.videoBuffer.length === 1 && !sourceBuffer.updating && index !== this.file.totalChunks) {
+          if (this.videoBuffer.length === 1 && !sourceBuffer.updating && this.receivedChunks !== this.file.totalChunks) {
             this.nextSegment()
           }
         }
@@ -78,8 +88,8 @@
       nextSegment: function () {
         if (this.shouldFetchNextSegment()) {
           this.appendToBuffer(this.videoBuffer.shift())
-          index++
-          if (index === this.file.totalChunks) {
+          this.receivedChunks++
+          if (this.receivedChunks === this.file.totalChunks) {
             // We have received all chunks, let's check if there is still chunks to append
             if (this.videoBuffer.length > 0) {
               this.appendToBuffer(this.videoBuffer.shift())
@@ -94,14 +104,14 @@
         if (videoChunk) sourceBuffer.appendBuffer(videoChunk)
       },
       shouldFetchNextSegment: function () {
-        let isCurrentTimeBehindLimit = video.currentTime > chunkDuration * index * 0.8
-        let canAppendSafely = this.chunkSize * index < 128 * 1024 * 1024
+        let isCurrentTimeBehindLimit = video.currentTime > chunkDuration * this.receivedChunks * 0.8
+        let canAppendSafely = this.chunkSize * this.receivedChunks < 128 * 1024 * 1024
         return (isCurrentTimeBehindLimit || canAppendSafely) && !sourceBuffer.updating && this.videoBuffer.length > 0
       },
       checkBuffer: function () {
         if (this.shouldFetchNextSegment()) {
           console.log('shouldFetchNextSegment: video.currentTime', video.currentTime)
-          console.log('shouldFetchNextSegment: chunkDuration, index, chunkDuration * index * 0.8', chunkDuration, index, chunkDuration * index * 0.8)
+          console.log('shouldFetchNextSegment: chunkDuration, this.receivedChunks, chunkDuration * this.receivedChunks * 0.8', chunkDuration, this.receivedChunks, chunkDuration * this.receivedChunks * 0.8)
           this.nextSegment()
         }
       }
@@ -117,9 +127,9 @@
         video.src = URL.createObjectURL(ms)
 
         // Reset
-        index = 0
+        this.receivedChunks = 0
 
-        // https://github.com/bitmovin/mse-demo/blob/master/index.html
+        // https://github.com/bitmovin/mse-demo/blob/master/this.receivedChunks.html
         // https://github.com/nickdesaulniers/netfix/blob/gh-pages/demo/bufferWhenNeeded.html
         ms.addEventListener('sourceopen', this.onMediaSourceOpen)
       }
