@@ -8,6 +8,7 @@
         <span class="badge badge-pill badge-success">{{ codecs.audio }}</span>
         <span class="badge badge-pill badge-default">{{ receivedChunks }} / {{ file.totalChunks }}</span>
         <span class="badge badge-pill badge-default">{{ filesize(receivedSize) }} / {{ filesize(file.size) }}</span>
+        <span class="badge badge-pill badge-info">{{ filesize(downloadBitrate) }}/s</span>
       </p>
       <pre>{{ file }}</pre>
       <a href="#" class="card-link">Card link</a>
@@ -22,7 +23,7 @@
 
   export default {
     name: 'video-info',
-    props: ['receivedSize', 'receivedChunks', 'codecs'],
+    props: ['receivedSize', 'receivedChunks', 'downloadBitrate', 'codecs'],
     computed: mapState({
       file: state => state.video.selectedFile
     }),

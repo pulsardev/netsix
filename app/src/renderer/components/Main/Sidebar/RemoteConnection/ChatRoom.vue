@@ -59,6 +59,8 @@
           payload: message.payload,
           from: 'local'
         })
+
+        this.message = ''
       }
     }
   }

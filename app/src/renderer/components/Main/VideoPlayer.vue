@@ -4,7 +4,7 @@
       <video ref="video" controls></video>
     </div>
 
-    <video-info v-if="Object.keys(file).length > 0" :received-size="receivedSize" :received-chunks="receivedChunks" :codecs="codecs" class="mt-3"></video-info>
+    <video-info v-if="Object.keys(file).length > 0" :received-size="receivedSize" :received-chunks="receivedChunks" :download-bitrate="downloadBitrate" :codecs="codecs" class="mt-3"></video-info>
   </div>
 </template>
 
@@ -12,11 +12,13 @@
   import { mapState } from 'vuex'
   import { bus } from '../../shared/bus'
   import VideoInfo from './VideoPlayer/VideoInfo'
+  import speedometer from 'speedometer'
 
   let ms
   let video
   let sourceBuffer
   let chunkDuration = 0
+  let speed
 
   export default {
     name: 'video-player',
@@ -29,7 +31,8 @@
         canAppendChunks: false,
         videoBuffer: [],
         receivedChunks: 0,
-        receivedSize: 0
+        receivedSize: 0,
+        downloadBitrate: 0
       }
     },
     computed: {
@@ -47,8 +50,12 @@
     mounted () {
       video = this.$refs.video
 
-      bus.$on('video:chunk', (videoChunk) => {
+      bus.$on('video:chunk', videoChunk => this.handleChunk(videoChunk))
+    },
+    methods: {
+      handleChunk: function (videoChunk) {
         this.receivedSize += videoChunk.byteLength
+        this.downloadBitrate = speed(videoChunk.byteLength)
         if (this.receivedChunks === 0) {
           this.appendToBuffer(videoChunk)
           this.receivedChunks++
@@ -58,9 +65,7 @@
             this.nextSegment()
           }
         }
-      })
-    },
-    methods: {
+      },
       onMediaSourceOpen: function () {
         console.log('onMediaSourceOpen')
         sourceBuffer = ms.addSourceBuffer('video/mp4; codecs="' + this.codecs.video + ', ' + this.codecs.audio + '"')
@@ -128,6 +133,7 @@
 
         // Reset
         this.receivedChunks = 0
+        speed = speedometer()
 
         // https://github.com/bitmovin/mse-demo/blob/master/this.receivedChunks.html
         // https://github.com/nickdesaulniers/netfix/blob/gh-pages/demo/bufferWhenNeeded.html

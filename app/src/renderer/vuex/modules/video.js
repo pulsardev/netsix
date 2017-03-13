@@ -20,6 +20,9 @@ const actions = {
   handleGetFileRequest: ({commit}, selectedFile) => {
     console.log('handleGetFileRequest', selectedFile)
 
+    // Stop sending chunks
+    if (readStream) readStream.pause()
+
     // Create a directory to store fragmented files if it doesn't exist already
     let fragmentedFilesDirectory = path.join(selectedFile.path, '.netsix')
     if (!fs.existsSync(fragmentedFilesDirectory)) {
@@ -80,9 +83,11 @@ const actions = {
   }
 }
 
+let readStream
+
 const readAndSendFile = function (commit, file) {
   // Finally, read the file chunk by chunk, store the chunks and send them
-  let readStream = fs.createReadStream(path.join(file.path, file.filename), {highWaterMark: state.chunkSize})
+  readStream = fs.createReadStream(path.join(file.path, file.filename), {highWaterMark: state.chunkSize})
 
   readStream.on('data', function (chunk) {
     console.log('readStream: data', chunk.byteLength)
@@ -91,11 +96,11 @@ const readAndSendFile = function (commit, file) {
       let peer = window.clientPeer._pcReady ? window.clientPeer : window.hostPeer
       peer.send(chunk)
       if (peer._channel.bufferedAmount > 0) console.log('readStream: bufferedamount', peer._channel.bufferedAmount)
-      if (peer._channel.bufferedAmount >= 16 * 1024 * 1024) {
+      if (peer._channel.bufferedAmount >= 8 * 1024 * 1024) {
         readStream.pause()
         setTimeout(() => {
           readStream.resume()
-        }, 100)
+        }, 1000)
       }
     } else {
       bus.$emit('video:chunk', chunk)
