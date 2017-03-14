@@ -10,7 +10,7 @@ const state = {
     isConnected: false,
     isConnecting: false
   },
-  useSignaling: localStorage.getItem('useSignaling') ? localStorage.getItem('useSignaling') : true
+  useSignaling: localStorage.getItem('useSignaling') ? (localStorage.getItem('useSignaling') === 'true') : true
 }
 
 const mutations = {
