@@ -1,4 +1,6 @@
 import * as types from '../mutation-types'
+import { bus } from '../../shared/bus'
+
 const uuidV4 = require('uuid/v4')
 
 /**
@@ -11,10 +13,9 @@ const state = {
 
 const mutations = {
   [types.PUSH_NOTIFICATION] (state, payload) {
-    state.items.unshift({
-      id: uuidV4(),
-      ...payload
-    })
+    let item = {id: uuidV4(), ...payload}
+    state.items.unshift(item)
+    bus.$emit('notification:push', item)
   },
   [types.CLEAR_NOTIFICATIONS] (state, payload) {
     if (payload.type) {

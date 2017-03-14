@@ -1,5 +1,7 @@
 <template>
   <div class="col-12 col-lg-4 sidebar-offcanvas pl-lg-3 pt-3 pt-lg-0" id="sidebar">
+    <notifications display-type="standalone"></notifications>
+
     <div class="card text-center">
       <div class="card-header">
         <ul class="nav nav-tabs card-header-tabs">
@@ -19,7 +21,7 @@
         <div class="tab-content">
           <remote-connection class="tab-pane active" id="remote" role="tabpanel"></remote-connection>
           <local-collections class="tab-pane" id="local" role="tabpanel"></local-collections>
-          <notifications class="tab-pane" id="notifications" role="tabpanel"></notifications>
+          <notifications display-type="tab" class="tab-pane" id="notifications" role="tabpanel"></notifications>
         </div>
       </div>
     </div>
