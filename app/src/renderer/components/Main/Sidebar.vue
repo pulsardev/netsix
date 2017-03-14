@@ -9,6 +9,9 @@
           <li class="nav-item">
             <a class="nav-link" data-toggle="tab" href="#local" role="tab">Local</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#notifications" role="tab">!</a>
+          </li>
         </ul>
       </div>
 
@@ -16,6 +19,7 @@
         <div class="tab-content">
           <remote-connection class="tab-pane active" id="remote" role="tabpanel"></remote-connection>
           <local-collections class="tab-pane" id="local" role="tabpanel"></local-collections>
+          <notifications class="tab-pane" id="notifications" role="tabpanel"></notifications>
         </div>
       </div>
     </div>
@@ -32,14 +36,16 @@
   import Collections from './Sidebar/Collections'
   import LocalCollections from './Sidebar/LocalCollections'
   import RemoteConnection from './Sidebar/RemoteConnection'
+  import Notifications from './Sidebar/Notifications'
 
   export default {
     components: {
-      Collections, LocalCollections, RemoteConnection
+      Notifications, Collections, LocalCollections, RemoteConnection
     },
     name: 'sidebar',
     computed: mapState({
-      remoteCollections: state => state.collections.remoteCollections
+      remoteCollections: state => state.collections.remoteCollections,
+      notifications: state => state.notifications.items
     })
   }
 </script>

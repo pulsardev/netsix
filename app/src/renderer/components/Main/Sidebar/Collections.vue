@@ -11,7 +11,7 @@
       </div>
       <div :id="'collapse' + uuids[index]" class="mt-1 collapse" role="tabpanel" :aria-labelledby="'heading' + uuids[index]">
         <div class="list-group">
-          <a @click.prevent="selectFile(key, item)" v-if="value.length > 0" v-for="item in value" href="#" class="list-group-item list-group-item-action flex-column align-items-start" :class="{ active: selectedFile === key + item.filename }">
+          <a @click.prevent="selectFile(key, item)" v-if="value.length > 0" v-for="item in value" href="#" class="list-group-item list-group-item-action flex-column align-items-start" :class="{ active: isFileSelected(key, item) }">
             <h6 class="mb-1">{{ item.filename }}</h6>
             <small class="text-muted">{{ filesize(item.size) }}</small>
           </a>
@@ -26,7 +26,9 @@
 </template>
 
 <script>
+  import { mapState } from 'vuex'
   import filesize from 'filesize'
+  import path from 'path'
   import { db } from '../../../shared/db'
 
   const uuidV4 = require('uuid/v4')
@@ -34,11 +36,6 @@
   export default {
     name: 'collections',
     props: ['collectionData', 'collectionType'],
-    data () {
-      return {
-        selectedFile: 'C:/test.mp4'
-      }
-    },
     computed: {
       // Generate unique UUIDs for each collection
       uuids: function () {
@@ -47,7 +44,10 @@
           uuids.push(uuidV4())
         }
         return uuids
-      }
+      },
+      ...mapState({
+        selectedFile: state => state.video.selectedFile
+      })
     },
     methods: {
       uuidV4: uuidV4,
@@ -76,6 +76,15 @@
           }
 
           peer.send(JSON.stringify(message))
+        }
+      },
+      isFileSelected (filePath, file) {
+        if (this.selectedFile.filename) {
+          let selectedFile = path.join(this.selectedFile.path, this.selectedFile.filename.split('.').shift())
+          let currentFile = path.join(filePath, '.netsix', file.filename.split('.').shift())
+          return selectedFile === currentFile
+        } else {
+          return false
         }
       }
     }

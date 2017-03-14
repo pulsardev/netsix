@@ -74,6 +74,32 @@ $badge-padding-x:             .75em;
 $badge-padding-y:             .75em;
 
 
+// Alerts
+//
+// Define alert colors, border radius, and padding.
+
+$alert-padding-x:             1rem;
+$alert-padding-y:             .5rem;
+$alert-margin-bottom:         $spacer-y / 2;
+$alert-border-width:          0;
+
+$alert-success-bg:            $state-success-bg;
+$alert-success-text:          $state-success-text;
+$alert-success-border:        $state-success-border;
+
+$alert-info-bg:               $state-info-bg;
+$alert-info-text:             $state-info-text;
+$alert-info-border:           $state-info-border;
+
+$alert-warning-bg:            $state-warning-bg;
+$alert-warning-text:          $state-warning-text;
+$alert-warning-border:        $state-warning-border;
+
+$alert-danger-bg:             $state-danger-bg;
+$alert-danger-text:           $state-danger-text;
+$alert-danger-border:         $state-danger-border;
+
+
 // List group
 
 $list-group-active-bg:           $gray-dark;

@@ -29,7 +29,8 @@ const actions = {
       fs.mkdirSync(fragmentedFilesDirectory)
     }
 
-    let destinationFile = selectedFile.filename.split('.').shift() + '-fragmented.mp4'
+    // The final file must be a mp4
+    let destinationFile = selectedFile.filename.split('.').shift() + '.mp4'
 
     // mp4fragment input.mp4 .netsix/output.mp4
     const mp4box = childProcess.spawn('mp4fragment', [path.join(selectedFile.path, selectedFile.filename), path.join(fragmentedFilesDirectory, destinationFile)])

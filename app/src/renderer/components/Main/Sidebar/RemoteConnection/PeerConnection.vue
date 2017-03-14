@@ -103,6 +103,7 @@
         console.log('PeerConnection: connect: peer.initiator', peer.initiator)
 
         this.$store.commit('UPDATE_IS_CONNECTED', true)
+        this.$store.commit('PUSH_NOTIFICATION', {type: 'success', message: 'You are connected to a peer!'})
 
         // wait for 'connect' event before using the data channel
         peer.send(JSON.stringify({

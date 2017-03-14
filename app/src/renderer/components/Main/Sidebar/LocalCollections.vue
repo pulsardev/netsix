@@ -21,13 +21,9 @@
       Collections
     },
     name: 'local-collections',
-    data () {
-      return {
-        acceptedExtensions: ['mkv', 'avi', 'mp4']
-      }
-    },
     computed: mapState({
       isElectron: state => state.configuration.isElectron,
+      acceptedExtensions: state => state.configuration.acceptedExtensions,
       localCollections: state => state.collections.localCollections
     }),
     methods: {
