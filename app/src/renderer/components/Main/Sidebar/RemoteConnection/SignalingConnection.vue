@@ -22,6 +22,8 @@
     computed: mapState({
       localPeerId: state => state.connection.localPeerId,
       remotePeerId: state => state.connection.remotePeerId,
+      signalingOffer: state => state.connection.signalingOffer,
+      signalingAnswer: state => state.connection.signalingAnswer,
       status: state => state.connection.status
     }),
     created () {
@@ -30,13 +32,17 @@
       pubnub.addListener({
         status: (statusEvent) => {
           console.log('PubNub: statusEvent', statusEvent)
-          this.$store.commit('UPDATE_IS_CONNECTING', false)
         },
         message: (message) => {
           console.log('PubNub: message', message)
-        },
-        presence: (presenceEvent) => {
-          console.log('PubNub: presenceEvent', presenceEvent)
+
+          // Handle the received signaling
+          let signalingData = JSON.parse(message.message)
+          if (signalingData.type === 'offer') {
+            window.hostPeer.signal(signalingData)
+          } else {
+            window.clientPeer.signal(signalingData)
+          }
         }
       })
     },
@@ -46,14 +52,48 @@
       },
       connect () {
         localStorage.setItem('remotePeerId', this.remotePeerId)
-        this.$store.commit('UPDATE_IS_CONNECTING', true)
 
         console.log('RemoteConnection: connect: remotePeerId', this.remotePeerId)
 
-        pubnub.subscribe({
-          channels: [this.remotePeerId],
-          withPresence: true
-        })
+        pubnub.subscribe({channels: [this.remotePeerId]})
+
+        // Send the signaling offer if it's available
+        if (this.signalingOffer !== '') {
+          let publishConfig = {
+            channel: this.remotePeerId,
+            message: this.signalingOffer
+          }
+
+          pubnub.publish(publishConfig, function (status, response) {
+            console.log('PubNub: publish', status, response)
+          })
+        }
+      }
+    },
+    watch: {
+      signalingOffer: function () {
+        if (this.remotePeerId !== '' && !(this.status.isConnecting || this.status.isConnected)) {
+          let publishConfig = {
+            channel: this.remotePeerId,
+            message: this.signalingOffer
+          }
+
+          pubnub.publish(publishConfig, function (status, response) {
+            console.log('PubNub: publish', status, response)
+          })
+        }
+      },
+      signalingAnswer: function () {
+        if (this.localPeerId !== '' && !(this.status.isConnecting || this.status.isConnected)) {
+          let publishConfig = {
+            channel: this.localPeerId,
+            message: this.signalingAnswer
+          }
+
+          pubnub.publish(publishConfig, function (status, response) {
+            console.log('PubNub: publish', status, response)
+          })
+        }
       }
     }
   }

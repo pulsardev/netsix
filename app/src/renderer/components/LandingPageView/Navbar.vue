@@ -28,7 +28,7 @@
           <span v-if="status.isConnected" class="my-2 mr-2 status" title="Connected"></span>
           <span v-if="status.isConnecting" class="my-2 mr-2 status status--pending" title="Connecting"></span>
           <span v-if="!status.isConnected && !status.isConnecting" class="my-2 mr-2 status status--error" title="Disconnected"></span>
-          <input :value="localPeerId" class="form-control" type="text" placeholder="Local Peer ID" disabled>
+          <input :value="useSignaling ? localPeerId : signalingOffer" class="form-control" type="text" placeholder="Generating local ID..." disabled>
           <button v-if="isElectron" class="btn btn-outline-success my-2 my-sm-0 ml-sm-2" type="button" @click="copyToClipboard" :disabled="status.isConnecting">Copy</button>
         </form>
       </div>
@@ -42,11 +42,18 @@
 
   export default {
     name: 'navbar',
-    computed: mapState({
-      localPeerId: state => state.connection.localPeerId,
-      status: state => state.connection.status,
-      isElectron: state => state.configuration.isElectron
-    }),
+    computed: {
+      localId: function () {
+        return this.useSignaling ? this.localPeerId : this.signalingOffer
+      },
+      ...mapState({
+        localPeerId: state => state.connection.localPeerId,
+        signalingOffer: state => state.connection.signalingOffer,
+        useSignaling: state => state.connection.useSignaling,
+        status: state => state.connection.status,
+        isElectron: state => state.configuration.isElectron
+      })
+    },
     methods: {
       copyToClipboard () {
         if (this.isElectron) {
@@ -54,11 +61,11 @@
             localStorage.setItem('localPeerId', this.localPeerId)
           }
 
-          clipboard.writeText(this.localPeerId)
+          clipboard.writeText(this.localId)
 
           // eslint-disable-next-line no-new
           new Notification('Netsix', {
-            body: 'Local Peer ID copied to clipboard!'
+            body: 'Local ID copied to clipboard!'
           })
         }
       }

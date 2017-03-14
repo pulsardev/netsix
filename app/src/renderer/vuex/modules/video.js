@@ -66,12 +66,8 @@ const actions = {
         commit(types.UPDATE_SELECTED_FILE, Object.assign({}, file))
 
         // Send the file information to the other peer if it's a remote request
-        let peer = window.clientPeer._pcReady ? window.clientPeer : window.hostPeer
         if (selectedFile.type === 'remote') {
-          peer.send(JSON.stringify({
-            type: 'SEND_FILE_INFORMATION',
-            payload: file
-          }))
+          checkBufferAndSend(file)
         } else {
           readAndSendFile(commit, file)
         }
@@ -110,6 +106,20 @@ const readAndSendFile = function (commit, file) {
     // We can now send the chunks contained in state.videoBuffer
     console.log('readStream: end')
   })
+}
+
+const checkBufferAndSend = function (file) {
+  let peer = window.clientPeer._pcReady ? window.clientPeer : window.hostPeer
+  if (peer._channel.bufferedAmount > 0) {
+    setTimeout(() => {
+      checkBufferAndSend(file)
+    }, 1000)
+  } else {
+    peer.send(JSON.stringify({
+      type: 'SEND_FILE_INFORMATION',
+      payload: file
+    }))
+  }
 }
 
 export default {

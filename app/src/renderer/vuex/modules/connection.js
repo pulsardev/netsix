@@ -1,13 +1,16 @@
 import * as types from '../mutation-types'
+const uuidV4 = require('uuid/v4')
 
 const state = {
-  localPeerId: localStorage.getItem('localPeerId') ? localStorage.getItem('localPeerId') : Math.random().toString(36).substring(7),
+  localPeerId: localStorage.getItem('localPeerId') ? localStorage.getItem('localPeerId') : uuidV4(),
   remotePeerId: localStorage.getItem('remotePeerId') ? localStorage.getItem('remotePeerId') : '',
+  signalingOffer: '',
+  signalingAnswer: '',
   status: {
     isConnected: false,
     isConnecting: false
   },
-  useSignaling: false
+  useSignaling: true
 }
 
 const mutations = {
@@ -28,6 +31,12 @@ const mutations = {
   },
   [types.TOGGLE_SIGNALING] (state) {
     state.status.useSignaling = !state.status.useSignaling
+  },
+  [types.UPDATE_SIGNALING_OFFER] (state, payload) {
+    state.signalingOffer = payload
+  },
+  [types.UPDATE_SIGNALING_ANSWER] (state, payload) {
+    state.signalingAnswer = payload
   }
 }
 

@@ -3,9 +3,9 @@
     <h4 class="card-title">Connect to a friend</h4>
     <p class="card-text">And watch your friend's collections.</p>
 
-    <signaling-connection v-if="useSignaling"></signaling-connection>
+    <signaling-connection v-if="useSignaling" v-show="!status.isConnected"></signaling-connection>
 
-    <peer-connection v-if="!useSignaling" class="mt-2"></peer-connection>
+    <peer-connection v-show="!useSignaling && !status.isConnected" class="mt-2"></peer-connection>
 
     <chat-room v-if="status.isConnected" class="mt-4"></chat-room>
   </div>

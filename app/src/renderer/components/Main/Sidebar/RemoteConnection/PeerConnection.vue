@@ -9,9 +9,9 @@
       </div>
     </form>
 
-    <form v-if="remotePeerId" class="form-inline justify-content-center mt-2">
+    <form v-if="signalingAnswer" class="form-inline justify-content-center mt-2">
       <div class="input-group">
-        <input v-model="remotePeerId" class="form-control" type="text" disabled>
+        <input v-model="signalingAnswer" class="form-control" type="text" disabled>
         <span class="input-group-btn">
         <button v-if="isElectron" @click="copySignal" class="btn btn-primary" type="button">Copy</button>
       </span>
@@ -34,8 +34,8 @@
       }
     },
     computed: mapState({
-      localPeerId: state => state.connection.localPeerId,
-      remotePeerId: state => state.connection.remotePeerId,
+      signalingOffer: state => state.connection.signalingOffer,
+      signalingAnswer: state => state.connection.signalingAnswer,
       status: state => state.connection.status,
       isElectron: state => state.configuration.isElectron,
       localCollections: state => state.collections.localCollections
@@ -78,7 +78,7 @@
       },
       copySignal () {
         if (this.isElectron) {
-          clipboard.writeText(this.remotePeerId)
+          clipboard.writeText(this.signalingAnswer)
 
           // eslint-disable-next-line no-new
           new Notification('Netsix', {
@@ -93,10 +93,10 @@
 
         if (peer.initiator) {
           // when clientPeer has signaling data, give it to hostPeer somehow
-          this.$store.commit('UPDATE_LOCAL_PEER_ID', JSON.stringify(data)) // window.hostPeer.signal(data)
+          this.$store.commit('UPDATE_SIGNALING_OFFER', JSON.stringify(data)) // window.hostPeer.signal(data)
         } else {
           // when hostPeer has signaling data, give it to clientPeer somehow
-          this.$store.commit('UPDATE_REMOTE_PEER_ID', JSON.stringify(data)) // window.clientPeer.signal(data)
+          this.$store.commit('UPDATE_SIGNALING_ANSWER', JSON.stringify(data)) // window.clientPeer.signal(data)
         }
       },
       handleConnect (peer) {
