@@ -3,14 +3,14 @@ const uuidV4 = require('uuid/v4')
 
 const state = {
   localPeerId: localStorage.getItem('localPeerId') ? localStorage.getItem('localPeerId') : uuidV4(),
-  remotePeerId: localStorage.getItem('remotePeerId') ? localStorage.getItem('remotePeerId') : '',
+  remotePeerId: '',
   signalingOffer: '',
   signalingAnswer: '',
   status: {
     isConnected: false,
     isConnecting: false
   },
-  useSignaling: true
+  useSignaling: localStorage.getItem('useSignaling') ? localStorage.getItem('useSignaling') : true
 }
 
 const mutations = {

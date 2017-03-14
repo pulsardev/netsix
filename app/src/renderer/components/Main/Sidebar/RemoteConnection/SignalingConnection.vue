@@ -3,10 +3,12 @@
     <div class="input-group">
       <input :value="remotePeerId" @input="updateRemotePeerId" class="form-control" type="text" placeholder="Enter a friend's ID">
       <span class="input-group-btn">
-          <button v-if="!status.isConnecting" @click="connect()" class="btn btn-primary" type="button" :disabled="remotePeerId === ''">Connect</button>
-          <button v-if="status.isConnecting" class="btn btn-primary" type="button" disabled>Connecting...</button>
-        </span>
+        <button v-if="!status.isConnecting" @click="connect()" class="btn btn-primary" type="button" :disabled="remotePeerId === ''">Connect</button>
+        <button v-if="status.isConnecting" class="btn btn-primary" type="button" disabled>Connecting...</button>
+      </span>
     </div>
+
+    <span v-if="lastRemotePeerId !== ''" class="card-text mt-3">Last ID used:<br>{{ lastRemotePeerId }}</span>
   </form>
 </template>
 
@@ -14,11 +16,14 @@
   import { mapState } from 'vuex'
   import { pubnub } from '../../../../shared/pubnub'
 
-  /**
-   * Not used as long as store.connection.useSignaling can't be set to `true`.
-   */
   export default {
     name: 'signaling-connection',
+    data () {
+      return {
+        isInitiator: false,
+        lastRemotePeerId: localStorage.getItem('remotePeerId') ? localStorage.getItem('remotePeerId') : ''
+      }
+    },
     computed: mapState({
       localPeerId: state => state.connection.localPeerId,
       remotePeerId: state => state.connection.remotePeerId,
@@ -38,9 +43,9 @@
 
           // Handle the received signaling
           let signalingData = JSON.parse(message.message)
-          if (signalingData.type === 'offer') {
+          if (signalingData.type === 'offer' && !this.isInitiator) {
             window.hostPeer.signal(signalingData)
-          } else {
+          } else if (signalingData.type === 'answer' && this.isInitiator) {
             window.clientPeer.signal(signalingData)
           }
         }
@@ -52,6 +57,7 @@
       },
       connect () {
         localStorage.setItem('remotePeerId', this.remotePeerId)
+        this.isInitiator = true
 
         console.log('RemoteConnection: connect: remotePeerId', this.remotePeerId)
 
@@ -72,7 +78,7 @@
     },
     watch: {
       signalingOffer: function () {
-        if (this.remotePeerId !== '' && !(this.status.isConnecting || this.status.isConnected)) {
+        if (this.remotePeerId !== '' && this.isInitiator && !(this.status.isConnecting || this.status.isConnected)) {
           let publishConfig = {
             channel: this.remotePeerId,
             message: this.signalingOffer
@@ -84,7 +90,7 @@
         }
       },
       signalingAnswer: function () {
-        if (this.localPeerId !== '' && !(this.status.isConnecting || this.status.isConnected)) {
+        if (this.localPeerId !== '' && !this.isInitiator && !(this.status.isConnecting || this.status.isConnected)) {
           let publishConfig = {
             channel: this.localPeerId,
             message: this.signalingAnswer
