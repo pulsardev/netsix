@@ -46,6 +46,11 @@ const actions = {
       console.log(`stderr: ${data}`)
     })
 
+    mp4fragment.on('error', (err) => {
+      console.error(`error: ${err}`)
+      commit('PUSH_NOTIFICATION', {type: 'danger', message: err})
+    })
+
     mp4fragment.on('close', (code) => {
       console.log(`child process exited with code ${code}`)
 
