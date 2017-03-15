@@ -22,6 +22,8 @@ const mutations = {
   }
 }
 
+let fragmentedFilesDirectory, binPath, destinationFile, destinationPath
+
 const actions = {
   handleGetFileRequest: ({commit}, selectedFile) => {
     console.log('handleGetFileRequest', selectedFile)
@@ -30,56 +32,70 @@ const actions = {
     if (readStream) readStream.pause()
 
     // Create a directory to store fragmented files if it doesn't exist already
-    let fragmentedFilesDirectory = path.join(selectedFile.path, '.netsix')
+    fragmentedFilesDirectory = path.join(selectedFile.path, '.netsix')
     if (!fs.existsSync(fragmentedFilesDirectory)) {
       fs.mkdirSync(fragmentedFilesDirectory)
     }
 
     // The final file must be a mp4
-    let destinationFile = selectedFile.filename.split('.').shift() + '.mp4'
+    destinationFile = selectedFile.filename.split('.').shift() + '.mp4'
+    destinationPath = path.join(fragmentedFilesDirectory, destinationFile)
 
-    // mp4fragment input.mp4 .netsix/output.mp4
-    let binPath = process.env.NODE_ENV === 'production' ? 'resources/app.asar/dist' : 'app/dist'
-    childProcess.execFile(path.join(binPath, mp4fragmentPath), [path.join(selectedFile.path, selectedFile.filename), path.join(fragmentedFilesDirectory, destinationFile)], (error, stdout, stderr) => {
-      if (error) console.error(`error: ${error}`)
-      if (stdout) console.log(`stdout: ${stdout}`)
-      if (stderr) console.log(`stderr: ${stderr}`)
+    // The folder where the mp4 tools' binaries are stored
+    binPath = process.env.NODE_ENV === 'production' ? 'resources/app.asar/dist' : 'app/dist'
 
-      if (error) {
-        // Error, reset the state
-        commit(types.UPDATE_REQUESTED_FILE, Object.assign({}, {}))
-        commit('PUSH_NOTIFICATION', {type: 'danger', message: 'An error occurred during the file fragmentation process.'})
-      }
+    // Check if a fragmented version of the selected already exists
+    if (!fs.existsSync(destinationPath)) {
+      // mp4fragment input.mp4 .netsix/output.mp4
+      childProcess.execFile(path.join(binPath, mp4fragmentPath), [path.join(selectedFile.path, selectedFile.filename), destinationPath], (error, stdout, stderr) => {
+        if (error) console.error(`error: ${error}`)
+        if (stdout) console.log(`stdout: ${stdout}`)
+        if (stderr) console.log(`stderr: ${stderr}`)
 
-      // Success, get file information to instantiate the MediaSource object
-      let fileInfo = JSON.parse(childProcess.execFileSync(path.join(binPath, mp4infoPath), ['--format', 'json', path.join(fragmentedFilesDirectory, destinationFile)], {encoding: 'utf8'}))
-      console.log('fileInfo', fileInfo)
+        if (error) {
+          // Error, reset the state
+          commit(types.UPDATE_REQUESTED_FILE, Object.assign({}, {}))
+          commit('PUSH_NOTIFICATION', {type: 'danger', message: 'An error occurred during the file fragmentation process.'})
+        }
 
-      let size = fs.statSync(path.join(fragmentedFilesDirectory, destinationFile)).size
-      let totalChunks = Math.ceil(size / state.chunkSize)
-
-      let file = {
-        ...selectedFile,
-        path: fragmentedFilesDirectory,
-        filename: destinationFile,
-        size: size,
-        totalChunks: totalChunks,
-        information: fileInfo
-      }
-
-      commit(types.UPDATE_SELECTED_FILE, Object.assign({}, file))
-      commit(types.UPDATE_REQUESTED_FILE, Object.assign({}, {}))
-
-      // Send the file information to the other peer if it's a remote request
-      if (selectedFile.type === 'remote') {
-        checkBufferAndSend(file)
-      } else {
-        readAndSendFile(commit, file)
-      }
-    })
+        // Success, get file information to instantiate the MediaSource object
+        generateFileInformation(commit, selectedFile)
+      })
+    } else {
+      // A fragmented version of the selected file already exists
+      // No need to fragment again, just get the file information
+      generateFileInformation(commit, selectedFile)
+    }
   },
   handleAckFileInformation: ({commit}, file) => {
     console.log('handleAckFileInformation', file)
+    readAndSendFile(commit, file)
+  }
+}
+
+const generateFileInformation = function (commit, selectedFile) {
+  let fileInfo = JSON.parse(childProcess.execFileSync(path.join(binPath, mp4infoPath), ['--format', 'json', destinationPath], {encoding: 'utf8'}))
+  console.log('fileInfo', fileInfo)
+
+  let size = fs.statSync(destinationPath).size
+  let totalChunks = Math.ceil(size / state.chunkSize)
+
+  let file = {
+    ...selectedFile,
+    path: fragmentedFilesDirectory,
+    filename: destinationFile,
+    size: size,
+    totalChunks: totalChunks,
+    information: fileInfo
+  }
+
+  commit(types.UPDATE_SELECTED_FILE, Object.assign({}, file))
+  commit(types.UPDATE_REQUESTED_FILE, Object.assign({}, {}))
+
+  // Send the file information to the other peer if it's a remote request
+  if (selectedFile.type === 'remote') {
+    checkBufferAndSend(file)
+  } else {
     readAndSendFile(commit, file)
   }
 }
