@@ -19,8 +19,8 @@
             <a class="nav-link dropdown-toggle" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Help</a>
             <div class="dropdown-menu" aria-labelledby="dropdown01">
               <a class="dropdown-item disabled" href="#">Guide</a>
-              <a class="dropdown-item" href="#">Reset connection</a>
-              <a class="dropdown-item" href="#">Refresh components</a>
+              <a @click.prevent="closeConnection" class="dropdown-item" href="#">Close connection</a>
+              <a v-if="isElectron" @click.prevent="reload" class="dropdown-item" href="#">Refresh components</a>
             </div>
           </li>
         </ul>
@@ -38,7 +38,7 @@
 
 <script>
   import { mapState } from 'vuex'
-  import { clipboard } from 'electron'
+  import { clipboard, remote } from 'electron'
 
   export default {
     name: 'navbar',
@@ -68,6 +68,13 @@
             body: 'Local ID copied to clipboard!'
           })
         }
+      },
+      reload () {
+        remote.getCurrentWindow().reload()
+      },
+      closeConnection () {
+        window.clientPeer.destroy()
+        window.hostPeer.destroy()
       }
     }
   }

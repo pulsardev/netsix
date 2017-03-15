@@ -4,6 +4,9 @@ import path from 'path'
 import * as fs from 'fs'
 import { bus } from '../../shared/bus'
 
+const mp4fragmentPath = require('../../assets/bin/mp4fragment.exe')
+const mp4infoPath = require('../../assets/bin/mp4info.exe')
+
 const state = {
   selectedFile: {},
   chunkSize: 64 * 1024,
@@ -36,54 +39,42 @@ const actions = {
     let destinationFile = selectedFile.filename.split('.').shift() + '.mp4'
 
     // mp4fragment input.mp4 .netsix/output.mp4
-    const mp4fragment = childProcess.spawn('mp4fragment', [path.join(selectedFile.path, selectedFile.filename), path.join(fragmentedFilesDirectory, destinationFile)])
+    let binPath = process.env.NODE_ENV === 'production' ? 'resources/app.asar/dist' : 'app/dist'
+    childProcess.execFile(path.join(binPath, mp4fragmentPath), [path.join(selectedFile.path, selectedFile.filename), path.join(fragmentedFilesDirectory, destinationFile)], (error, stdout, stderr) => {
+      if (error) console.error(`error: ${error}`)
+      if (stdout) console.log(`stdout: ${stdout}`)
+      if (stderr) console.log(`stderr: ${stderr}`)
 
-    mp4fragment.stdout.on('data', (data) => {
-      console.log(`stdout: ${data}`)
-    })
-
-    mp4fragment.stderr.on('data', (data) => {
-      console.log(`stderr: ${data}`)
-    })
-
-    mp4fragment.on('error', (err) => {
-      console.error(`error: ${err}`)
-      commit('PUSH_NOTIFICATION', {type: 'danger', message: err})
-    })
-
-    mp4fragment.on('close', (code) => {
-      console.log(`child process exited with code ${code}`)
-
-      if (code === 0) {
-        // Success, get file information to instantiate the MediaSource object
-        let fileInfo = JSON.parse(childProcess.spawnSync('mp4info', ['--format', 'json', path.join(fragmentedFilesDirectory, destinationFile)], {encoding: 'utf8'}).stdout)
-        console.log('fileInfo', fileInfo)
-
-        let size = fs.statSync(path.join(fragmentedFilesDirectory, destinationFile)).size
-        let totalChunks = Math.ceil(size / state.chunkSize)
-
-        let file = {
-          ...selectedFile,
-          path: fragmentedFilesDirectory,
-          filename: destinationFile,
-          size: size,
-          totalChunks: totalChunks,
-          information: fileInfo
-        }
-
-        commit(types.UPDATE_SELECTED_FILE, Object.assign({}, file))
-        commit(types.UPDATE_REQUESTED_FILE, Object.assign({}, {}))
-
-        // Send the file information to the other peer if it's a remote request
-        if (selectedFile.type === 'remote') {
-          checkBufferAndSend(file)
-        } else {
-          readAndSendFile(commit, file)
-        }
-      } else {
+      if (error) {
         // Error, reset the state
         commit(types.UPDATE_REQUESTED_FILE, Object.assign({}, {}))
         commit('PUSH_NOTIFICATION', {type: 'danger', message: 'An error occurred during the file fragmentation process.'})
+      }
+
+      // Success, get file information to instantiate the MediaSource object
+      let fileInfo = JSON.parse(childProcess.execFileSync(path.join(binPath, mp4infoPath), ['--format', 'json', path.join(fragmentedFilesDirectory, destinationFile)], {encoding: 'utf8'}))
+      console.log('fileInfo', fileInfo)
+
+      let size = fs.statSync(path.join(fragmentedFilesDirectory, destinationFile)).size
+      let totalChunks = Math.ceil(size / state.chunkSize)
+
+      let file = {
+        ...selectedFile,
+        path: fragmentedFilesDirectory,
+        filename: destinationFile,
+        size: size,
+        totalChunks: totalChunks,
+        information: fileInfo
+      }
+
+      commit(types.UPDATE_SELECTED_FILE, Object.assign({}, file))
+      commit(types.UPDATE_REQUESTED_FILE, Object.assign({}, {}))
+
+      // Send the file information to the other peer if it's a remote request
+      if (selectedFile.type === 'remote') {
+        checkBufferAndSend(file)
+      } else {
+        readAndSendFile(commit, file)
       }
     })
   },

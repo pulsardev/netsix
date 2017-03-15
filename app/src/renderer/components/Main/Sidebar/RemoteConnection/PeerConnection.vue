@@ -44,24 +44,26 @@
       this.initializePeers()
     },
     methods: {
-      initializePeers () {
-        this.$store.commit('UPDATE_IS_CONNECTING', true)
-        window.clientPeer = new SimplePeer({initiator: true, trickle: false, objectMode: true})
-        window.hostPeer = new SimplePeer({trickle: false, objectMode: true})
+      initializePeers (canReset) {
+        if ((!window.clientPeer && !window.hostPeer) || canReset) {
+          this.$store.commit('UPDATE_IS_CONNECTING', true)
+          window.clientPeer = new SimplePeer({initiator: true, trickle: false, objectMode: true})
+          window.hostPeer = new SimplePeer({trickle: false, objectMode: true})
 
-        // Client peer listeners
-        window.clientPeer.on('signal', data => this.handleSignal(window.clientPeer, data))
-        window.clientPeer.on('connect', () => this.handleConnect(window.clientPeer))
-        window.clientPeer.on('data', data => this.handleData(window.clientPeer, data))
-        window.clientPeer.on('close', () => this.handleClose(window.clientPeer))
-        window.clientPeer.on('error', err => this.handleError(window.clientPeer, err))
+          // Client peer listeners
+          window.clientPeer.on('signal', data => this.handleSignal(window.clientPeer, data))
+          window.clientPeer.on('connect', () => this.handleConnect(window.clientPeer))
+          window.clientPeer.on('data', data => this.handleData(window.clientPeer, data))
+          window.clientPeer.on('close', () => this.handleClose(window.clientPeer))
+          window.clientPeer.on('error', err => this.handleError(window.clientPeer, err))
 
-        // Host peer listeners
-        window.hostPeer.on('signal', data => this.handleSignal(window.hostPeer, data))
-        window.hostPeer.on('connect', () => this.handleConnect(window.hostPeer))
-        window.hostPeer.on('data', data => this.handleData(window.hostPeer, data))
-        window.hostPeer.on('close', () => this.handleClose(window.hostPeer))
-        window.hostPeer.on('error', err => this.handleError(window.hostPeer, err))
+          // Host peer listeners
+          window.hostPeer.on('signal', data => this.handleSignal(window.hostPeer, data))
+          window.hostPeer.on('connect', () => this.handleConnect(window.hostPeer))
+          window.hostPeer.on('data', data => this.handleData(window.hostPeer, data))
+          window.hostPeer.on('close', () => this.handleClose(window.hostPeer))
+          window.hostPeer.on('error', err => this.handleError(window.hostPeer, err))
+        }
       },
       signal () {
         console.log('signal', this.signalPayload)
@@ -160,14 +162,14 @@
         this.$store.commit('UPDATE_IS_CONNECTING', false)
         this.$store.commit('UPDATE_IS_CONNECTED', false)
         this.$store.commit('PUSH_NOTIFICATION', {type: 'danger', message: 'Connection closed!'})
-        this.initializePeers()
+        this.initializePeers(true)
       },
       handleError (peer, err) {
         console.error('PeerConnection: error: peer.initiator, err', peer.initiator, err)
         this.$store.commit('UPDATE_IS_CONNECTING', false)
         this.$store.commit('UPDATE_IS_CONNECTED', false)
         this.$store.commit('PUSH_NOTIFICATION', {type: 'danger', message: err.toString()})
-        this.initializePeers()
+        this.initializePeers(true)
       }
     }
   }

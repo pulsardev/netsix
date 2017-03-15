@@ -75,6 +75,16 @@ let rendererConfig = {
             name: 'fonts/[name].[ext]'
           }
         }
+      },
+      {
+        test: /\.(exe)(\?.*)?$/,
+        use: {
+          loader: 'url-loader',
+          query: {
+            limit: 10000,
+            name: 'bin/[name].[ext]'
+          }
+        }
       }
     ]
   },
