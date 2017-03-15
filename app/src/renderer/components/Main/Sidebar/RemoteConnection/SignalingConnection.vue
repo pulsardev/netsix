@@ -4,11 +4,16 @@
       <input :value="remotePeerId" @input="updateRemotePeerId" class="form-control" type="text" placeholder="Enter a friend's ID">
       <span class="input-group-btn">
         <button v-if="!status.isConnecting" @click="connect()" class="btn btn-primary" type="button" :disabled="remotePeerId === ''">Connect</button>
-        <button v-if="status.isConnecting" class="btn btn-primary" type="button" disabled>Connecting...</button>
+        <button v-if="status.isConnecting" class="btn btn-primary" type="button" disabled><i class="fa fa-circle-o-notch fa-spin fa-fw"></i></button>
       </span>
     </div>
 
-    <span v-if="lastRemotePeerId !== ''" class="card-text mt-3">Last ID used:<br>{{ lastRemotePeerId }}</span>
+    <div v-if="lastRemotePeerId !== ''" class="input-group mt-3">
+      <input :value="lastRemotePeerId" class="form-control" type="text" disabled>
+      <span class="input-group-btn">
+        <button class="btn btn-secondary" type="button" @click="$store.commit('UPDATE_REMOTE_PEER_ID', lastRemotePeerId)">Use last ID</button>
+      </span>
+    </div>
   </form>
 </template>
 
@@ -30,7 +35,8 @@
       remotePeerId: state => state.connection.remotePeerId,
       signalingOffer: state => state.connection.signalingOffer,
       signalingAnswer: state => state.connection.signalingAnswer,
-      status: state => state.connection.status
+      status: state => state.connection.status,
+      isElectron: state => state.configuration.isElectron
     }),
     created () {
       pubnub.subscribe({channels: [this.localPeerId]})
@@ -65,6 +71,8 @@
         this.isInitiator = true
 
         console.log('RemoteConnection: connect: remotePeerId', this.remotePeerId)
+
+        this.$store.commit('UPDATE_IS_CONNECTING', true)
 
         pubnub.subscribe({channels: [this.remotePeerId]})
 
