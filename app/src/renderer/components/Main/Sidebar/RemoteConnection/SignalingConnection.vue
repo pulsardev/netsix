@@ -21,7 +21,8 @@
     data () {
       return {
         isInitiator: false,
-        lastRemotePeerId: localStorage.getItem('remotePeerId') ? localStorage.getItem('remotePeerId') : ''
+        lastRemotePeerId: localStorage.getItem('remotePeerId') ? localStorage.getItem('remotePeerId') : '',
+        receivedAnswer: {}
       }
     },
     computed: mapState({
@@ -46,7 +47,11 @@
           if (signalingData.type === 'offer' && !this.isInitiator) {
             window.hostPeer.signal(signalingData)
           } else if (signalingData.type === 'answer' && this.isInitiator) {
-            window.clientPeer.signal(signalingData)
+            if (this.localPeerId) {
+              window.clientPeer.signal(signalingData)
+            } else {
+              this.receivedAnswer = signalingData
+            }
           }
         }
       })
@@ -78,15 +83,20 @@
     },
     watch: {
       signalingOffer: function () {
-        if (this.remotePeerId !== '' && this.isInitiator && !(this.status.isConnecting || this.status.isConnected)) {
-          let publishConfig = {
-            channel: this.remotePeerId,
-            message: this.signalingOffer
-          }
+        if (Object.keys(this.receivedAnswer).length > 0) {
+          window.clientPeer.signal(this.receivedAnswer)
+          this.receivedAnswer = {}
+        } else {
+          if (this.remotePeerId !== '' && this.isInitiator && !(this.status.isConnecting || this.status.isConnected)) {
+            let publishConfig = {
+              channel: this.remotePeerId,
+              message: this.signalingOffer
+            }
 
-          pubnub.publish(publishConfig, function (status, response) {
-            console.log('PubNub: publish', status, response)
-          })
+            pubnub.publish(publishConfig, function (status, response) {
+              console.log('PubNub: publish', status, response)
+            })
+          }
         }
       },
       signalingAnswer: function () {
