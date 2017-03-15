@@ -136,6 +136,7 @@
               case 'SEND_FILE_INFORMATION':
                 // Handle the received file information
                 this.$store.commit('UPDATE_SELECTED_FILE', Object.assign({}, message.payload))
+                this.$store.commit('UPDATE_REQUESTED_FILE', Object.assign({}, {}))
                 break
               case 'ACK_FILE_INFORMATION':
                 // Handle the received file acknowledgment

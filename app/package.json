@@ -7,6 +7,7 @@
     "bootstrap": "^4.0.0-alpha.6",
     "buffer": "^5.0.5",
     "filesize": "^3.5.5",
+    "font-awesome": "^4.7.0",
     "lowdb": "^0.15.5",
     "node-uuid": "^1.4.7",
     "pubnub": "^4.5.0",

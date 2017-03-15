@@ -12,7 +12,7 @@
             <a class="nav-link" data-toggle="tab" href="#local" role="tab">Local</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" data-toggle="tab" href="#notifications" role="tab">!</a>
+            <a class="nav-link" data-toggle="tab" href="#notifications" role="tab"><i class="fa fa-exclamation-circle"></i></a>
           </li>
         </ul>
       </div>

@@ -7,12 +7,15 @@ import { bus } from '../../shared/bus'
 const state = {
   selectedFile: {},
   chunkSize: 64 * 1024,
-  downloadBitrate: 0
+  requestedFile: {}
 }
 
 const mutations = {
   [types.UPDATE_SELECTED_FILE] (state, payload) {
     state.selectedFile = payload
+  },
+  [types.UPDATE_REQUESTED_FILE] (state, payload) {
+    state.requestedFile = payload
   }
 }
 
@@ -33,17 +36,17 @@ const actions = {
     let destinationFile = selectedFile.filename.split('.').shift() + '.mp4'
 
     // mp4fragment input.mp4 .netsix/output.mp4
-    const mp4box = childProcess.spawn('mp4fragment', [path.join(selectedFile.path, selectedFile.filename), path.join(fragmentedFilesDirectory, destinationFile)])
+    const mp4fragment = childProcess.spawn('mp4fragment', [path.join(selectedFile.path, selectedFile.filename), path.join(fragmentedFilesDirectory, destinationFile)])
 
-    mp4box.stdout.on('data', (data) => {
+    mp4fragment.stdout.on('data', (data) => {
       console.log(`stdout: ${data}`)
     })
 
-    mp4box.stderr.on('data', (data) => {
+    mp4fragment.stderr.on('data', (data) => {
       console.log(`stderr: ${data}`)
     })
 
-    mp4box.on('close', (code) => {
+    mp4fragment.on('close', (code) => {
       console.log(`child process exited with code ${code}`)
 
       if (code === 0) {
@@ -64,6 +67,7 @@ const actions = {
         }
 
         commit(types.UPDATE_SELECTED_FILE, Object.assign({}, file))
+        commit(types.UPDATE_REQUESTED_FILE, Object.assign({}, {}))
 
         // Send the file information to the other peer if it's a remote request
         if (selectedFile.type === 'remote') {
@@ -71,6 +75,10 @@ const actions = {
         } else {
           readAndSendFile(commit, file)
         }
+      } else {
+        // Error, reset the state
+        commit(types.UPDATE_REQUESTED_FILE, Object.assign({}, {}))
+        commit('PUSH_NOTIFICATION', {type: 'danger', message: 'An error occurred during the file fragmentation process.'})
       }
     })
   },

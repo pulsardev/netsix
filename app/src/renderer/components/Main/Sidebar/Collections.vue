@@ -11,9 +11,12 @@
       </div>
       <div :id="'collapse' + uuids[index]" class="mt-1 collapse" role="tabpanel" :aria-labelledby="'heading' + uuids[index]">
         <div class="list-group">
-          <a @click.prevent="selectFile(key, item)" v-if="value.length > 0" v-for="item in value" href="#" class="list-group-item list-group-item-action flex-column align-items-start" :class="{ active: isFileSelected(key, item) }">
-            <h6 class="mb-1">{{ item.filename }}</h6>
-            <small class="text-muted">{{ filesize(item.size) }}</small>
+          <a @click.prevent="selectFile(key, item)" v-if="value.length > 0" v-for="item in value" href="#" class="list-group-item list-group-item-action justify-content-between" :class="{ active: isFileSelected(key, item), disabled: requestedFile.id }">
+            <div class="flex-column align-items-start text-left">
+              <h6 class="mb-1">{{ item.filename }}</h6>
+              <small class="text-muted">{{ filesize(item.size) }}</small>
+            </div>
+            <i v-if="requestedFile.id === item.id" class="fa fa-circle-o-notch fa-spin fa-fw text-success"></i>
           </a>
 
           <a v-if="value.length === 0" class="list-group-item list-group-item-action flex-column align-items-start">
@@ -46,7 +49,8 @@
         return uuids
       },
       ...mapState({
-        selectedFile: state => state.video.selectedFile
+        selectedFile: state => state.video.selectedFile,
+        requestedFile: state => state.video.requestedFile
       })
     },
     methods: {
@@ -57,25 +61,29 @@
         this.$store.commit('UPDATE_LOCAL_COLLECTIONS', Object.assign({}, db.get('localCollections').value()))
       },
       selectFile (collection, file) {
-        if (this.collectionType === 'local') {
-          this.$store.dispatch('handleGetFileRequest', {
-            type: this.collectionType,
-            path: collection,
-            ...file
-          })
-        } else {
-          let peer = window.clientPeer._pcReady ? window.clientPeer : window.hostPeer
+        if (!this.requestedFile.id) {
+          this.$store.commit('UPDATE_REQUESTED_FILE', Object.assign({}, file))
 
-          let message = {
-            type: 'GET_FILE_REQUEST',
-            payload: {
+          if (this.collectionType === 'local') {
+            this.$store.dispatch('handleGetFileRequest', {
               type: this.collectionType,
               path: collection,
               ...file
-            }
-          }
+            })
+          } else {
+            let peer = window.clientPeer._pcReady ? window.clientPeer : window.hostPeer
 
-          peer.send(JSON.stringify(message))
+            let message = {
+              type: 'GET_FILE_REQUEST',
+              payload: {
+                type: this.collectionType,
+                path: collection,
+                ...file
+              }
+            }
+
+            peer.send(JSON.stringify(message))
+          }
         }
       },
       isFileSelected (filePath, file) {

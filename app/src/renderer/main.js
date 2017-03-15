@@ -9,6 +9,7 @@ import routes from './routes'
 window.$ = window.jQuery = require('jquery')
 window.tether = window.Tether = require('tether')
 require('bootstrap')
+require('font-awesome/css/font-awesome.css')
 
 Vue.use(Electron)
 Vue.use(Resource)

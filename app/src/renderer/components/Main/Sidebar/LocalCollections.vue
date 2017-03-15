@@ -12,9 +12,10 @@
   import Collections from './Collections'
   import { mapState } from 'vuex'
   import * as fs from 'fs'
-  const {dialog} = require('electron').remote
   import { db } from '../../../shared/db'
   import path from 'path'
+  const {dialog} = require('electron').remote
+  const uuidV4 = require('uuid/v4')
 
   export default {
     components: {
@@ -49,7 +50,7 @@
               // Create a file object with the size
               acceptedFiles = acceptedFiles.map((file) => {
                 let fileStats = fs.statSync(path.join(folder, file))
-                return {filename: file, size: fileStats.size}
+                return {id: uuidV4(), filename: file, size: fileStats.size}
               })
 
               console.log('LocalCollections: addCollection(): acceptedFiles', acceptedFiles)
