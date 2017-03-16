@@ -123,7 +123,6 @@ const readAndSendFile = function (commit, file) {
       bus.$emit('video:chunk', chunk)
     }
   }).on('end', function () {
-    // We can now send the chunks contained in state.videoBuffer
     console.log('readStream: end')
   })
 }

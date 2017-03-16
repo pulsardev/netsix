@@ -28,7 +28,6 @@
     },
     data () {
       return {
-        canAppendChunks: false,
         videoBuffer: [],
         receivedChunks: 0,
         receivedSize: 0,
