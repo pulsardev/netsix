@@ -12,4 +12,6 @@ npm-debug.log.*
 thumbs.db
 !.gitkeep
 
-!app/src/**/*.exe
+app/dist/fonts/*
+app/dist/imgs/*
+!app/**/*.exe

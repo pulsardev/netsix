@@ -94,9 +94,7 @@ const generateFileInformation = function (commit, selectedFile) {
 
   // Send the file information to the other peer if it's a remote request
   if (selectedFile.type === 'remote') {
-    checkBufferAndSend(file)
-  } else {
-    readAndSendFile(commit, file)
+    checkBufferAndSendFileInformation(file)
   }
 }
 
@@ -119,19 +117,20 @@ const readAndSendFile = function (commit, file) {
           readStream.resume()
         }, 1000)
       }
-    } else {
-      bus.$emit('video:chunk', chunk)
     }
+
+    // Emit a chunk if we are not connected locally (through a manuel connection for example) to track the upload progress
+    if (!(window.clientPeer._pcReady && window.hostPeer._pcReady)) bus.$emit('video:chunk', chunk)
   }).on('end', function () {
     console.log('readStream: end')
   })
 }
 
-const checkBufferAndSend = function (file) {
+const checkBufferAndSendFileInformation = function (file) {
   let peer = window.clientPeer._pcReady ? window.clientPeer : window.hostPeer
   if (peer._channel.bufferedAmount > 0) {
     setTimeout(() => {
-      checkBufferAndSend(file)
+      checkBufferAndSendFileInformation(file)
     }, 1000)
   } else {
     peer.send(JSON.stringify({

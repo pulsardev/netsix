@@ -77,6 +77,8 @@
             type: 'ACK_FILE_INFORMATION',
             payload: this.file
           }))
+        } else {
+          this.$store.dispatch('handleAckFileInformation', this.file)
         }
 
         // Reset the video element
