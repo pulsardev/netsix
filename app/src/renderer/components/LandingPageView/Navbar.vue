@@ -5,7 +5,7 @@
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <router-link to="/" class="navbar-brand"><img src="./assets/logo.png"> Netsix</router-link>
+      <router-link to="/" class="navbar-brand" title="Netsix"><img src="./assets/logo.svg"></router-link>
 
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
@@ -82,7 +82,7 @@
 
 <style scoped>
   img {
-    width: 24px;
+    width: 32px; /* 24px */
   }
 
   .navbar {
