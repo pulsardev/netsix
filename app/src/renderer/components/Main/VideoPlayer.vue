@@ -48,8 +48,6 @@
     },
     mounted () {
       video = this.$refs.video
-
-      bus.$on('video:chunk', videoChunk => this.handleChunk(videoChunk))
     },
     methods: {
       handleChunk: function (videoChunk) {
@@ -70,6 +68,19 @@
         sourceBuffer = ms.addSourceBuffer('video/mp4; codecs="' + this.codecs.video + ', ' + this.codecs.audio + '"')
         sourceBuffer.addEventListener('updateend', this.nextSegment)
 
+        // Reset the video element
+        video.pause()
+        video.currentTime = 0
+
+        video.addEventListener('timeupdate', this.checkBuffer)
+        video.addEventListener('canplay', () => {
+          chunkDuration = video.duration / this.file.totalChunks
+          video.play()
+        })
+
+        // Ready to listen to incoming chunks
+        bus.$on('video:chunk', videoChunk => this.handleChunk(videoChunk))
+
         // Everything is ready to receive the remote video
         if (this.file.type === 'remote') {
           let peer = window.clientPeer._pcReady ? window.clientPeer : window.hostPeer
@@ -80,16 +91,6 @@
         } else {
           this.$store.dispatch('handleAckFileInformation', this.file)
         }
-
-        // Reset the video element
-        video.pause()
-        video.currentTime = 0
-
-        video.addEventListener('timeupdate', this.checkBuffer)
-        video.addEventListener('canplay', () => {
-          chunkDuration = video.duration / this.file.totalChunks
-          video.play()
-        })
       },
       nextSegment: function () {
         if (this.shouldFetchNextSegment()) {
@@ -120,6 +121,29 @@
           console.log('shouldFetchNextSegment: chunkDuration, this.receivedChunks, chunkDuration * this.receivedChunks * 0.8', chunkDuration, this.receivedChunks, chunkDuration * this.receivedChunks * 0.8)
           this.nextSegment()
         }
+      },
+      reload: function () {
+        // Reset
+        Object.assign(this.$data, this.$options.data())
+        speed = speedometer()
+
+        // Now that we have the codec, we can create the MediaSource object
+        ms = new MediaSource()
+        video.src = URL.createObjectURL(ms)
+
+        // https://github.com/bitmovin/mse-demo/blob/master/this.receivedChunks.html
+        // https://github.com/nickdesaulniers/netfix/blob/gh-pages/demo/bufferWhenNeeded.html
+        ms.addEventListener('sourceopen', this.onMediaSourceOpen)
+      },
+      checkSourceBufferAndReload: function () {
+        if (sourceBuffer && sourceBuffer.updating) {
+          window.setTimeout(() => {
+            console.log('VideoPlayer: checkSourceBufferAndReload: setTimeout')
+            this.reload()
+          }, 1000)
+        } else {
+          this.reload()
+        }
       }
     },
     watch: {
@@ -128,17 +152,11 @@
         console.log('information.tracks', this.file.information.tracks)
         console.log('VideoPlayer: codecs', this.codecs)
 
-        // Now that we have the codec, we can create the MediaSource object
-        ms = new MediaSource()
-        video.src = URL.createObjectURL(ms)
+        // Stop listening to incoming chunks
+        bus.$off('video:chunk')
 
-        // Reset
-        Object.assign(this.$data, this.$options.data())
-        speed = speedometer()
-
-        // https://github.com/bitmovin/mse-demo/blob/master/this.receivedChunks.html
-        // https://github.com/nickdesaulniers/netfix/blob/gh-pages/demo/bufferWhenNeeded.html
-        ms.addEventListener('sourceopen', this.onMediaSourceOpen)
+        // Check if we're not finishing to append a segment before requesting new segments
+        this.checkSourceBufferAndReload()
       }
     }
   }

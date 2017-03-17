@@ -22,7 +22,7 @@ const mutations = {
   }
 }
 
-let fragmentedFilesDirectory, binPath, destinationFile, destinationPath
+let fragmentedFilesDirectory, binPath, destinationFile, destinationPath, timeout
 
 const actions = {
   handleGetFileRequest: ({commit}, selectedFile) => {
@@ -30,6 +30,7 @@ const actions = {
 
     // Stop sending chunks
     if (readStream) readStream.pause()
+    clearTimeout(timeout)
 
     // Create a directory to store fragmented files if it doesn't exist already
     fragmentedFilesDirectory = path.join(selectedFile.path, '.netsix')
@@ -113,7 +114,7 @@ const readAndSendFile = function (commit, file) {
       if (peer._channel.bufferedAmount > 0) console.log('readStream: bufferedamount', peer._channel.bufferedAmount)
       if (peer._channel.bufferedAmount >= 8 * 1024 * 1024) {
         readStream.pause()
-        setTimeout(() => {
+        timeout = setTimeout(() => {
           readStream.resume()
         }, 1000)
       }
