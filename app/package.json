@@ -1,11 +1,12 @@
 {
-  "name": "netsix-vue",
-  "version": "0.0.0",
+  "name": "Netsix",
+  "version": "1.0.0-alpha.2",
   "description": "An electron-vue project",
   "main": "./dist/main.js",
   "dependencies": {
     "bootstrap": "^4.0.0-alpha.6",
     "buffer": "^5.0.5",
+    "electron-updater": "^1.10.3",
     "filesize": "^3.5.5",
     "font-awesome": "^4.7.0",
     "lowdb": "^0.15.5",

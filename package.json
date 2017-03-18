@@ -1,6 +1,6 @@
 {
   "name": "netsix-vue",
-  "version": "0.0.8",
+  "version": "0.0.0",
   "description": "An electron-vue project",
   "scripts": {
     "build": "npm run pack && build",
@@ -50,7 +50,14 @@
       "target": [
         "AppImage"
       ]
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "mmorainville",
+        "repo": "netsix"
+      }
+    ]
   },
   "author": "Greg Holguin <simulatedgreg@gmail.com>",
   "license": "MIT",
