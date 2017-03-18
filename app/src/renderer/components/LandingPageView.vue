@@ -33,6 +33,15 @@
       ipcRenderer.on('auto-updater', (event, arg) => {
         this.autoUpdateStatus = arg
       })
+
+      // Add useful shortcuts
+      document.addEventListener('keydown', function (e) {
+        if (e.which === 123) {
+          remote.getCurrentWindow().toggleDevTools()
+        } else if (e.which === 116) {
+          location.reload()
+        }
+      })
     },
     methods: {
       checkForUpdates: function () {
