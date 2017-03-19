@@ -43,7 +43,7 @@ const actions = {
     destinationPath = path.join(fragmentedFilesDirectory, destinationFile)
 
     // The folder where the mp4 tools' binaries are stored
-    binPath = process.env.NODE_ENV === 'production' ? 'resources/app.asar/dist' : 'app/dist'
+    binPath = process.env.NODE_ENV === 'production' ? 'resources/app/dist' : 'app/dist'
 
     // Check if a fragmented version of the selected already exists
     if (!fs.existsSync(destinationPath)) {

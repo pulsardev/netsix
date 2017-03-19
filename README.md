@@ -1,6 +1,6 @@
-# netsix-vue
+# Netsix
 
-> An electron-vue project
+> Netsix allows you to share videos with your friends in a real peer-to-peer manner using WebRTC.
 
 ## Build Setup
 
@@ -14,11 +14,20 @@ npm run dev
 # build electron app for production
 npm run build
 
+# build electron app for production (unpacked)
+npm run build:dir
+
+# build electron app for production and publish a release
+npm run build -- -p always
+
 # lint all JS/Vue component files in `app/src`
 npm run lint
 
 # run webpack in production
 npm run pack
+
+# generate the full changelog
+git-changelog -t false -a "Netsix"
 ```
 More information can be found [here](https://simulatedgreg.gitbooks.io/electron-vue/content/docs/npm_scripts.html).
 

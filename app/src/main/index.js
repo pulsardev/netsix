@@ -54,7 +54,8 @@ autoUpdater.on('update-not-available', () => {
 })
 
 autoUpdater.on('error', (ev, err) => {
-  mainWindow.webContents.send('auto-updater', err)
+  console.log(err)
+  mainWindow.webContents.send('auto-updater', 'error')
 })
 
 autoUpdater.on('download-progress', () => {

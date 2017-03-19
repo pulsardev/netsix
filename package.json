@@ -40,6 +40,9 @@
       "node_modules/",
       "package.json"
     ],
+    "extraResources": [
+      "app/dist/bin/*.exe"
+    ],
     "mac": {
       "icon": "app/icons/icon.icns"
     },
