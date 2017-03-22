@@ -2,6 +2,7 @@
 
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { autoUpdater } from 'electron-updater'
+const deskmetrics = require('deskmetrics')
 
 let mainWindow
 const winURL = process.env.NODE_ENV === 'development'
@@ -70,10 +71,25 @@ autoUpdater.on('update-downloaded', () => {
   autoUpdater.quitAndInstall()
 })
 
-app.on('ready', function () {
-  autoUpdater.checkForUpdates()
-})
+// If we are in production
+if (process.env.NODE_ENV === 'production') {
+  // Check for updates
+  app.on('ready', function () {
+    autoUpdater.checkForUpdates()
+  })
 
-ipcMain.on('auto-updater', (event, arg) => {
-  if (arg === 'check-for-update') autoUpdater.checkForUpdates()
-})
+  ipcMain.on('auto-updater', (event, arg) => {
+    if (arg === 'check-for-update') {
+      autoUpdater.checkForUpdates()
+    }
+  })
+
+  // Gather statistics
+  deskmetrics.start({appId: '86398312c6'}).then(function () {
+    deskmetrics.setProperty('version', app.getVersion())
+  })
+
+  ipcMain.on('analytics', (event, arg) => {
+    deskmetrics.send(arg.event, arg.body)
+  })
+}

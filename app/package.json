@@ -6,6 +6,7 @@
   "dependencies": {
     "bootstrap": "^4.0.0-alpha.6",
     "buffer": "^5.0.5",
+    "deskmetrics": "^2.3.0-rc7",
     "electron-updater": "^1.10.3",
     "filesize": "^3.5.5",
     "font-awesome": "^4.7.0",

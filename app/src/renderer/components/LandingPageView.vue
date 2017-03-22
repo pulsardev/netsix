@@ -46,6 +46,7 @@
     methods: {
       checkForUpdates: function () {
         ipcRenderer.send('auto-updater', 'check-for-update')
+        ipcRenderer.send('analytics', {event: 'check-for-update'})
       }
     }
   }
