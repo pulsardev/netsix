@@ -104,6 +104,7 @@
       handleConnect (peer) {
         console.log('PeerConnection: connect: peer.initiator', peer.initiator)
 
+        bus.$emit('connection:connect')
         this.$store.commit('UPDATE_IS_CONNECTING', false)
         this.$store.commit('UPDATE_IS_CONNECTED', true)
         this.$store.commit('PUSH_NOTIFICATION', {type: 'success', message: 'You are connected to a peer!'})
@@ -159,6 +160,7 @@
       },
       handleClose (peer) {
         console.log('PeerConnection: close: peer.initiator', peer.initiator)
+        bus.$emit('connection:close')
         this.$store.commit('UPDATE_IS_CONNECTING', false)
         this.$store.commit('UPDATE_IS_CONNECTED', false)
         this.$store.commit('PUSH_NOTIFICATION', {type: 'danger', message: 'Connection closed!'})
@@ -166,6 +168,7 @@
       },
       handleError (peer, err) {
         console.error('PeerConnection: error: peer.initiator, err', peer.initiator, err)
+        bus.$emit('connection:error')
         this.$store.commit('UPDATE_IS_CONNECTING', false)
         this.$store.commit('UPDATE_IS_CONNECTED', false)
         this.$store.commit('PUSH_NOTIFICATION', {type: 'danger', message: err.toString()})

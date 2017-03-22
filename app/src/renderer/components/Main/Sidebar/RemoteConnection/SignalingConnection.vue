@@ -19,6 +19,7 @@
 
 <script>
   import { mapState } from 'vuex'
+  import { bus } from '../../../../shared/bus'
   import { pubnub } from '../../../../shared/pubnub'
 
   export default {
@@ -39,7 +40,11 @@
       isElectron: state => state.configuration.isElectron
     }),
     created () {
-      pubnub.subscribe({channels: [this.localPeerId]})
+      bus.$on('connection:connect', this.handleConnect)
+      bus.$on('connection:close', this.handleCloseOrError)
+      bus.$on('connection:error', this.handleCloseOrError)
+
+      pubnub.subscribe({channels: [this.localPeerId], withPresence: true})
 
       pubnub.addListener({
         status: (statusEvent) => {
@@ -67,26 +72,50 @@
         this.$store.commit('UPDATE_REMOTE_PEER_ID', e.target.value)
       },
       connect () {
-        localStorage.setItem('remotePeerId', this.remotePeerId)
-        this.isInitiator = true
+        pubnub.hereNow({channels: [this.remotePeerId]}, (status, response) => {
+          console.log('hereNow: response', response)
 
-        console.log('RemoteConnection: connect: remotePeerId', this.remotePeerId)
+          let isAlreadyInChannel = JSON.stringify(response.channels[this.remotePeerId].occupants).indexOf(this.localPeerId > -1)
 
-        this.$store.commit('UPDATE_IS_CONNECTING', true)
+          if (response.totalOccupancy >= 2 && !isAlreadyInChannel) {
+            this.$store.commit('PUSH_NOTIFICATION', {type: 'danger', message: 'The peer you\'re trying to connect to is already connecting or connected to someone else.'})
+          } else if (response.totalOccupancy === 0) {
+            this.$store.commit('PUSH_NOTIFICATION', {type: 'danger', message: 'There is no peer associated with this ID or this peer is already connected to someone else.'})
+          } else {
+            localStorage.setItem('remotePeerId', this.remotePeerId)
+            this.isInitiator = true
 
-        pubnub.subscribe({channels: [this.remotePeerId]})
+            console.log('RemoteConnection: connect: remotePeerId', this.remotePeerId)
 
-        // Send the signaling offer if it's available
-        if (this.signalingOffer !== '') {
-          let publishConfig = {
-            channel: this.remotePeerId,
-            message: this.signalingOffer
+            this.$store.commit('UPDATE_IS_CONNECTING', true)
+
+            pubnub.subscribe({channels: [this.remotePeerId], withPresence: true})
+
+            // Send the signaling offer if it's available
+            if (this.signalingOffer !== '') {
+              let publishConfig = {
+                channel: this.remotePeerId,
+                message: this.signalingOffer
+              }
+
+              pubnub.publish(publishConfig, function (status, response) {
+                console.log('PubNub: publish', status, response)
+              })
+            }
           }
-
-          pubnub.publish(publishConfig, function (status, response) {
-            console.log('PubNub: publish', status, response)
-          })
+        })
+      },
+      handleCloseOrError () {
+        if (this.remotePeerId) {
+          pubnub.unsubscribe({channels: [this.remotePeerId]})
         }
+
+        // The WebRTC connection has been closed or has failed, so let's join the signaling channel again
+        pubnub.subscribe({channels: [this.localPeerId], withPresence: true})
+      },
+      handleConnect () {
+        // We are connected using WebRTC, we can unsubscribe from all channels
+        pubnub.unsubscribeAll()
       }
     },
     watch: {
