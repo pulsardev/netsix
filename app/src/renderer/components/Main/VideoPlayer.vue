@@ -108,7 +108,12 @@
         }
       },
       appendToBuffer: function (videoChunk) {
-        if (videoChunk) sourceBuffer.appendBuffer(videoChunk)
+        try {
+          if (videoChunk) sourceBuffer.appendBuffer(videoChunk)
+        } catch (e) {
+          console.error(e)
+          this.$store.commit('PUSH_NOTIFICATION', {type: 'danger', message: e.toString()})
+        }
       },
       shouldFetchNextSegment: function () {
         let isCurrentTimeBehindLimit = video.currentTime > chunkDuration * this.receivedChunks * 0.8
