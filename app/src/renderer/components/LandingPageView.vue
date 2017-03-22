@@ -8,7 +8,7 @@
       <hr>
 
       <footer>
-        <p>&copy; Netsix 2017 | {{ appVersion }} | <a @click.prevent="checkForUpdates" href="#">Check for updates</a> | {{ autoUpdateStatus }}</p>
+        <p>&copy; Netsix 2017 | <a @click.prevent="donate" href="">Donate</a> | v{{ appVersion }} | <a @click.prevent="checkForUpdates" href="#">Check for updates</a> | {{ autoUpdateStatus }}</p>
       </footer>
     </div>
   </div>
@@ -16,7 +16,7 @@
 
 <script>
   import Navbar from './LandingPageView/Navbar'
-  import { ipcRenderer, remote } from 'electron'
+  import { ipcRenderer, remote, shell } from 'electron'
 
   export default {
     components: {
@@ -47,6 +47,9 @@
       checkForUpdates: function () {
         ipcRenderer.send('auto-updater', 'check-for-update')
         ipcRenderer.send('analytics', {event: 'check-for-update'})
+      },
+      donate: function () {
+        shell.openExternal('https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MRDR2837QXHK8')
       }
     }
   }
