@@ -1,6 +1,6 @@
 {
   "name": "Netsix",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-alpha.5",
   "description": "Netsix allows you to share videos with your friends in a real peer-to-peer manner using WebRTC.",
   "main": "./dist/main.js",
   "dependencies": {
