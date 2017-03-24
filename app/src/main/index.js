@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, Tray } from 'electron'
 import { autoUpdater } from 'electron-updater'
 const deskmetrics = require('deskmetrics')
 
@@ -93,3 +93,13 @@ if (process.env.NODE_ENV === 'production') {
     deskmetrics.send(arg.event, arg.body)
   })
 }
+
+let tray = null
+app.on('ready', () => {
+  tray = new Tray('app/icons/icon.ico')
+  tray.setToolTip('Netsix ' + app.getVersion())
+
+  tray.on('click', () => {
+    mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()
+  })
+})
