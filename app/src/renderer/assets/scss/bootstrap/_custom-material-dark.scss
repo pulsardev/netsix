@@ -28,6 +28,19 @@ $link-color:            $brand-success;
 $link-hover-color:      darken($white, 15%);
 
 
+// Grid containers
+//
+// Define the maximum width of `.container` for different screen sizes.
+
+$container-max-widths: (
+  sm: 540px,
+  md: 720px,
+  lg: 960px,
+  xl: 75%
+);
+@include _assert-ascending($container-max-widths, "$container-max-widths");
+
+
 // Fonts
 //
 // Font, line-height, and color for body text, headings, and more.
