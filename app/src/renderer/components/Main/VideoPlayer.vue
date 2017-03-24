@@ -117,6 +117,11 @@
       },
       shouldFetchNextSegment: function () {
         let isCurrentTimeBehindLimit = video.currentTime > chunkDuration * this.receivedChunks * 0.8
+
+        if (ms.sourceBuffers.length > 0 && sourceBuffer.buffered.length === 1) {
+          isCurrentTimeBehindLimit = video.currentTime > sourceBuffer.buffered.start(0) + (sourceBuffer.buffered.end(0) - sourceBuffer.buffered.start(0)) * 0.8
+        }
+
         let canAppendSafely = this.chunkSize * this.receivedChunks < 128 * 1024 * 1024
         return (isCurrentTimeBehindLimit || canAppendSafely) && !sourceBuffer.updating && this.videoBuffer.length > 0
       },
