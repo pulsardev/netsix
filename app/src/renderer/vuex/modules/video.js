@@ -3,6 +3,7 @@ import * as childProcess from 'child_process'
 import path from 'path'
 import * as fs from 'fs'
 import { bus } from '../../shared/bus'
+import moment from 'moment'
 
 const mp4fragmentPath = require('../../assets/bin/mp4fragment.exe')
 const mp4infoPath = require('../../assets/bin/mp4info.exe')
@@ -11,7 +12,10 @@ const ffmpegPath = require('../../assets/bin/ffmpeg.exe')
 const state = {
   selectedFile: {},
   chunkSize: 64 * 1024,
-  requestedFile: {}
+  requestedFile: {},
+  transcodingProgress: 0,
+  isTranscodingVideo: false,
+  isTranscodingAudio: false
 }
 
 const mutations = {
@@ -20,6 +24,20 @@ const mutations = {
   },
   [types.UPDATE_REQUESTED_FILE] (state, payload) {
     state.requestedFile = payload
+  },
+  [types.UPDATE_TRANSCODING_PROGRESS] (state, payload) {
+    state.transcodingProgress = payload
+  },
+  [types.UPDATE_IS_TRANSCODING_VIDEO] (state, payload) {
+    state.isTranscodingVideo = payload
+  },
+  [types.UPDATE_IS_TRANSCODING_AUDIO] (state, payload) {
+    state.isTranscodingAudio = payload
+  },
+  [types.RESET_VIDEO_STATE] (state) {
+    state.transcodingProgress = 0
+    state.isTranscodingVideo = false
+    state.isTranscodingAudio = false
   }
 }
 
@@ -32,6 +50,9 @@ const actions = {
     // Stop sending chunks
     if (readStream) readStream.pause()
     clearTimeout(timeout)
+
+    // Reset the state
+    commit(types.RESET_VIDEO_STATE)
 
     // Create a directory to store fragmented files if it doesn't exist already
     fragmentedFilesDirectory = path.join(selectedFile.path, '.netsix')
@@ -61,6 +82,7 @@ const actions = {
           if (error) {
             // Error, reset the state
             commit(types.UPDATE_REQUESTED_FILE, Object.assign({}, {}))
+            commit(types.RESET_VIDEO_STATE)
             commit('PUSH_NOTIFICATION', {type: 'danger', message: 'An error occurred during the file fragmentation process.'})
           }
 
@@ -77,6 +99,13 @@ const actions = {
   handleAckFileInformation: ({commit}, file) => {
     console.log('handleAckFileInformation', file)
     readAndSendFile(commit, file)
+  },
+  handleCancelTranscodingInformation: ({commit}) => {
+    console.log('handleCancelTranscodingInformation')
+    // Cancel the transcoding and reset the state
+    ffmpegTranscode.kill()
+    commit(types.UPDATE_REQUESTED_FILE, Object.assign({}, {}))
+    commit(types.RESET_VIDEO_STATE)
   }
 }
 
@@ -147,13 +176,15 @@ const checkBufferAndSendFileInformation = function (file) {
   }
 }
 
+let ffmpegTranscode, transcodedMkvDirectory
+
 // Handle mkv requests
 const handleGetMkvRequest = function (commit, selectedFile) {
   console.log('handleGetMkvRequest', selectedFile)
   // Check if a fragmented version of the selected already exists
   if (!fs.existsSync(destinationPath)) {
     // Create a directory to store transcoded mkv files if it doesn't exist already
-    let transcodedMkvDirectory = path.join(fragmentedFilesDirectory, 'mkv')
+    transcodedMkvDirectory = path.join(fragmentedFilesDirectory, 'mkv')
     if (!fs.existsSync(transcodedMkvDirectory)) {
       fs.mkdirSync(transcodedMkvDirectory)
     }
@@ -167,6 +198,7 @@ const handleGetMkvRequest = function (commit, selectedFile) {
       if (error) {
         // Error, reset the state
         commit(types.UPDATE_REQUESTED_FILE, Object.assign({}, {}))
+        commit(types.RESET_VIDEO_STATE)
         commit('PUSH_NOTIFICATION', {type: 'danger', message: 'An error occurred during the file fragmentation process.'})
       }
 
@@ -199,48 +231,79 @@ const handleGetMkvRequest = function (commit, selectedFile) {
       }
 
       commit('PUSH_NOTIFICATION', {type: 'info', message: 'Begin to transcode ' + destinationFile + '. It may take a while.'})
+      if (selectedFile.type === 'remote') {
+        let peer = window.clientPeer._pcReady ? window.clientPeer : window.hostPeer
+        peer.send(JSON.stringify({type: 'TRANSCODING_PROGRESS', payload: 0}))
+      }
 
       // ffmpeg -i .netsix/mkv/input.mp4 -c:v libx264 -preset medium -b:v 2600k -c:a aac -b:a 128k .netsix/mkv/t_output.mp4
-      let ffmpegH264Aac = childProcess.execFile(path.join(binPath, ffmpegPath), ['-i', path.join(transcodedMkvDirectory, destinationFile), ...ffmpegArguments, path.join(transcodedMkvDirectory, 't_' + destinationFile)], (error, stdout, stderr) => {
+      ffmpegTranscode = childProcess.execFile(path.join(binPath, ffmpegPath), ['-i', path.join(transcodedMkvDirectory, destinationFile), ...ffmpegArguments, path.join(transcodedMkvDirectory, 't_' + destinationFile)], (error, stdout, stderr) => {
         if (error) console.error(`error: ${error}`)
         if (stdout) console.log(`stdout: ${stdout}`)
         if (stderr) console.log(`stderr: ${stderr}`)
 
-        console.log('ffmpegH264Aac: done')
-        commit('PUSH_NOTIFICATION', {type: 'info', message: 'Done transcoding ' + destinationFile + '.'})
-
-        // Remove the non-transcoded file
-        fs.unlinkSync(path.join(transcodedMkvDirectory, destinationFile))
-
-        // Then, fragment the transcoded file
-        // mp4fragment .netsix/mkv/t_input.mp4 .netsix/output.mp4
-        childProcess.execFile(path.join(binPath, mp4fragmentPath), [path.join(transcodedMkvDirectory, 't_' + destinationFile), destinationPath], (error, stdout, stderr) => {
-          if (error) console.error(`error: ${error}`)
-          if (stdout) console.log(`stdout: ${stdout}`)
-          if (stderr) console.log(`stderr: ${stderr}`)
-
-          // Remove the non-fragmented file
-          fs.unlinkSync(path.join(transcodedMkvDirectory, 't_' + destinationFile))
-
-          if (error) {
-            // Error, reset the state
-            commit(types.UPDATE_REQUESTED_FILE, Object.assign({}, {}))
-            commit('PUSH_NOTIFICATION', {type: 'danger', message: 'An error occurred during the file fragmentation process.'})
+        if (!error) {
+          commit(types.UPDATE_TRANSCODING_PROGRESS, 100)
+          commit('PUSH_NOTIFICATION', {type: 'info', message: 'Done transcoding ' + destinationFile + '.'})
+          if (selectedFile.type === 'remote') {
+            let peer = window.clientPeer._pcReady ? window.clientPeer : window.hostPeer
+            peer.send(JSON.stringify({type: 'TRANSCODING_PROGRESS', payload: 100}))
           }
 
-          // Success, get file information to instantiate the MediaSource object
-          generateFileInformation(commit, selectedFile)
-        })
+          // Remove the non-transcoded file
+          fs.unlinkSync(path.join(transcodedMkvDirectory, destinationFile))
+
+          // Then, fragment the transcoded file
+          // mp4fragment .netsix/mkv/t_input.mp4 .netsix/output.mp4
+          childProcess.execFile(path.join(binPath, mp4fragmentPath), [path.join(transcodedMkvDirectory, 't_' + destinationFile), destinationPath], (error, stdout, stderr) => {
+            if (error) console.error(`error: ${error}`)
+            if (stdout) console.log(`stdout: ${stdout}`)
+            if (stderr) console.log(`stderr: ${stderr}`)
+
+            // Remove the non-fragmented file
+            fs.unlinkSync(path.join(transcodedMkvDirectory, 't_' + destinationFile))
+
+            if (error) {
+              // Error, reset the state
+              commit(types.UPDATE_REQUESTED_FILE, Object.assign({}, {}))
+              commit(types.RESET_VIDEO_STATE)
+              commit('PUSH_NOTIFICATION', {type: 'danger', message: 'An error occurred during the file fragmentation process.'})
+            }
+
+            // Success, get file information to instantiate the MediaSource object
+            generateFileInformation(commit, selectedFile)
+          })
+        } else {
+          // Remove temporary/uncomplete files
+          fs.unlinkSync(path.join(transcodedMkvDirectory, destinationFile))
+          fs.unlinkSync(path.join(transcodedMkvDirectory, 't_' + destinationFile))
+        }
       })
 
       console.log('ffmpeg -i input.mkv', ffmpegArguments, 'output.mp4')
 
-      ffmpegH264Aac.stdout.on('data', function (data) {
+      ffmpegTranscode.stdout.on('data', function (data) {
         console.log(`stdout: ${data.toString()}`)
       })
 
-      ffmpegH264Aac.stderr.on('data', function (data) {
+      ffmpegTranscode.stderr.on('data', function (data) {
         console.log(`stderr: ${data.toString()}`)
+
+        // Notifiy of the transcoding progress
+        // Example of an ffmpeg progress line: frame=24628 fps=6805 q=-1.0 size=  436672kB time=00:17:07.06 bitrate=3482.9kbits/s speed= 284x
+        let timeRegex = new RegExp(/frame.*time=(.*)\sbitrate.*/, 'i')
+        if (data.search(timeRegex) > -1) {
+          let transcodingTimeProgress = timeRegex.exec(data)[1]
+          let transcodingTimeProgressInMilliseconds = moment.duration(transcodingTimeProgress)._milliseconds
+          let transcodingTimeProgressInPercentage = (transcodingTimeProgressInMilliseconds * 100) / fileInfo.movie.duration
+          commit(types.UPDATE_TRANSCODING_PROGRESS, parseInt(transcodingTimeProgressInPercentage))
+
+          // Send the transcoding progress through WebRTC
+          if (selectedFile.type === 'remote') {
+            let peer = window.clientPeer._pcReady ? window.clientPeer : window.hostPeer
+            peer.send(JSON.stringify({type: 'TRANSCODING_PROGRESS', payload: parseInt(transcodingTimeProgressInPercentage)}))
+          }
+        }
       })
     })
 

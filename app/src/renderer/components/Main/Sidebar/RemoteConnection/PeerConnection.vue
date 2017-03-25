@@ -146,6 +146,24 @@
                 // Handle the received file acknowledgment
                 this.$store.dispatch('handleAckFileInformation', message.payload)
                 break
+              case 'TRANSCODING_PROGRESS':
+                // Handle the received transcoding progress
+                this.$store.commit('UPDATE_TRANSCODING_PROGRESS', message.payload)
+
+                // Emit a notification when the transcoding begins/ends
+                switch (message.payload) {
+                  case 0:
+                    this.$store.commit('PUSH_NOTIFICATION', {type: 'info', message: 'Begin to transcode ' + this.$store.state.video.destinationFile + '. It may take a while.'})
+                    break
+                  case 100:
+                    this.$store.commit('PUSH_NOTIFICATION', {type: 'info', message: 'Done transcoding ' + this.$store.state.video.destinationFile + '.'})
+                    break
+                }
+                break
+              case 'CANCEL_TRANSCODING_REQUEST':
+                // Handle the received cancel transcoding request
+                this.$store.dispatch('handleCancelTranscodingInformation')
+                break
               default:
                 console.warn('PeerConnection: data: unknown type received', message.type)
             }

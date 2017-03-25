@@ -11,6 +11,7 @@
     "filesize": "^3.5.5",
     "font-awesome": "^4.7.0",
     "lowdb": "^0.15.5",
+    "moment": "^2.18.1",
     "node-uuid": "^1.4.7",
     "pubnub": "^4.5.0",
     "simple-peer": "^7.0.0",

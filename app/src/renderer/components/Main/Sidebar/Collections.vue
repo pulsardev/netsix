@@ -5,18 +5,32 @@
     <div v-if="Object.keys(collectionData).length > 0" v-for="(value, key, index) in collectionData" class="card" :class="{ 'mb-1': index !== Object.keys(collectionData).length - 1 }">
       <div class="btn-group">
         <a class="btn btn-block btn-secondary" role="tab" :id="'heading' + uuids[index]" data-toggle="collapse" data-parent="#accordion" :href="'#collapse' + uuids[index]" aria-expanded="true" :aria-controls="'collapse' + uuids[index]">{{ key }}</a>
-        <button v-if="collectionType === 'local'" @click="deleteCollection(key)" class="btn btn-danger" type="button">
+        <button v-if="collectionType === 'local'" @click="deleteCollection(key)" class="btn btn-danger btn-sm" type="button">
           <span class="close" aria-hidden="true">&times;</span>
         </button>
       </div>
       <div :id="'collapse' + uuids[index]" class="mt-1 collapse" role="tabpanel" :aria-labelledby="'heading' + uuids[index]">
         <div class="list-group">
-          <a @click.prevent="selectFile(key, item)" v-if="value.length > 0" v-for="item in value" href="#" class="list-group-item list-group-item-action justify-content-between" :class="{ active: isFileSelected(key, item), disabled: requestedFile.id }">
-            <div class="flex-column align-items-start text-left">
-              <h6 class="mb-1">{{ item.filename }}</h6>
-              <small class="text-muted">{{ filesize(item.size) }}</small>
+          <a @click.prevent="selectFile(key, item)" v-if="value.length > 0" v-for="item in value" href="#" class="list-group-item list-group-item-action flex-column align-items-start" :class="{ active: isFileSelected(key, item), disabled: requestedFile.id }">
+            <div class="d-flex w-100 justify-content-between text-left" data-toggle="tooltip" data-placement="top" data-trigger="hover" :title="item.filename">
+              <div class="d-flex flex-column w-75">
+                <h6 class="mb-1 text-truncate">{{ item.filename }}</h6>
+                <small class="text-muted">{{ filesize(item.size) }}</small>
+                <div v-if="requestedFile.id === item.id && transcodingProgress > 0" class="row align-items-center no-gutters progress-row">
+                  <div class="col">
+                    <div class="progress">
+                      <div class="progress-bar" role="progressbar" :style="{ width: transcodingProgress + '%' }" style="height: 2px;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                    <button @click.stop.prevent="cancelTranscoding" type="button" class="btn btn-link"><i class="fa fa-times-circle" aria-hidden="true"></i></button>
+                  </div>
+                </div>
+              </div>
+              <div v-if="requestedFile.id === item.id" class="align-self-center">
+                <i class="fa fa-circle-o-notch fa-spin fa-fw text-success"></i>
+              </div>
             </div>
-            <i v-if="requestedFile.id === item.id" class="fa fa-circle-o-notch fa-spin fa-fw text-success"></i>
           </a>
 
           <a v-if="value.length === 0" class="list-group-item list-group-item-action flex-column align-items-start">
@@ -50,8 +64,12 @@
       },
       ...mapState({
         selectedFile: state => state.video.selectedFile,
-        requestedFile: state => state.video.requestedFile
+        requestedFile: state => state.video.requestedFile,
+        transcodingProgress: state => state.video.transcodingProgress
       })
+    },
+    mounted () {
+      this.initTooltips()
     },
     methods: {
       uuidV4: uuidV4,
@@ -94,6 +112,27 @@
         } else {
           return false
         }
+      },
+      initTooltips () {
+        window.$('[data-toggle="tooltip"]').tooltip({
+          delay: {'show': 750, 'hide': 50}
+        })
+      },
+      cancelTranscoding () {
+        if (this.collectionType === 'local') {
+          this.$store.dispatch('handleCancelTranscodingInformation')
+        } else {
+          let peer = window.clientPeer._pcReady ? window.clientPeer : window.hostPeer
+          peer.send(JSON.stringify({type: 'CANCEL_TRANSCODING_REQUEST'}))
+        }
+      }
+    },
+    watch: {
+      collectionData: function () {
+        this.initTooltips()
+      },
+      selectedFile: function () {
+        window.scrollTo(0, 0)
       }
     }
   }
@@ -115,5 +154,9 @@
 
   .close {
     line-height: 0.75;
+  }
+
+  .progress-row {
+    margin-bottom: -0.5rem;
   }
 </style>
