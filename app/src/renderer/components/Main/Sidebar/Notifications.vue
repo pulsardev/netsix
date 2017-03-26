@@ -73,6 +73,10 @@
     text-align: left;
   }
 
+  .alert {
+    overflow: hidden;
+  }
+
   .fade-enter-active, .fade-leave-active {
     transition: opacity .25s
   }

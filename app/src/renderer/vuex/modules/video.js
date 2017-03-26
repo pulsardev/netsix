@@ -61,7 +61,7 @@ const actions = {
     }
 
     // The final file must be a mp4
-    destinationFile = selectedFile.filename.split('.').shift() + '.mp4'
+    destinationFile = selectedFile.filename.substr(0, selectedFile.filename.lastIndexOf('.')) + '.mp4'
     destinationPath = path.join(fragmentedFilesDirectory, destinationFile)
 
     // The folder where the mp4 tools' binaries are stored
@@ -230,11 +230,27 @@ const handleGetMkvRequest = function (commit, selectedFile) {
         ffmpegArguments = ['-c:v', 'libx264', '-preset', 'medium', '-b:v', '2600k', '-c:a', 'aac', '-b:a', '128k']
       }
 
-      commit('PUSH_NOTIFICATION', {type: 'info', message: 'Begin to transcode ' + destinationFile + '. It may take a while.'})
       if (selectedFile.type === 'remote') {
         let peer = window.clientPeer._pcReady ? window.clientPeer : window.hostPeer
+        if (!(isVideoTypeSupported && isAudioTypeSupported)) {
+          peer.send(JSON.stringify({
+            type: 'NEED_TRANSCODING',
+            payload: {
+              isVideoTypeSupported: isVideoTypeSupported,
+              isAudioTypeSupported: isAudioTypeSupported
+            }
+          }))
+        }
         peer.send(JSON.stringify({type: 'TRANSCODING_PROGRESS', payload: 0}))
       }
+
+      if (!(isVideoTypeSupported && isAudioTypeSupported)) {
+        commit('PUSH_NOTIFICATION', {
+          type: 'warning',
+          message: `Transcoding needed! It may take a while.<br>Video: ${!isVideoTypeSupported}, audio: ${!isAudioTypeSupported}.`
+        })
+      }
+      commit('PUSH_NOTIFICATION', {type: 'info', message: 'Begin to transcode ' + destinationFile + '. It may take a while.'})
 
       // ffmpeg -i .netsix/mkv/input.mp4 -c:v libx264 -preset medium -b:v 2600k -c:a aac -b:a 128k .netsix/mkv/t_output.mp4
       ffmpegTranscode = childProcess.execFile(path.join(binPath, ffmpegPath), ['-i', path.join(transcodedMkvDirectory, destinationFile), ...ffmpegArguments, path.join(transcodedMkvDirectory, 't_' + destinationFile)], (error, stdout, stderr) => {

@@ -153,16 +153,23 @@
                 // Emit a notification when the transcoding begins/ends
                 switch (message.payload) {
                   case 0:
-                    this.$store.commit('PUSH_NOTIFICATION', {type: 'info', message: 'Begin to transcode ' + this.$store.state.video.destinationFile + '. It may take a while.'})
+                    this.$store.commit('PUSH_NOTIFICATION', {type: 'info', message: 'Begin to transcode ' + this.$store.state.video.requestedFile.filename + '. It may take a while.'})
                     break
                   case 100:
-                    this.$store.commit('PUSH_NOTIFICATION', {type: 'info', message: 'Done transcoding ' + this.$store.state.video.destinationFile + '.'})
+                    this.$store.commit('PUSH_NOTIFICATION', {type: 'info', message: 'Done transcoding ' + this.$store.state.video.requestedFile.filename + '.'})
                     break
                 }
                 break
               case 'CANCEL_TRANSCODING_REQUEST':
                 // Handle the received cancel transcoding request
                 this.$store.dispatch('handleCancelTranscodingInformation')
+                break
+              case 'NEED_TRANSCODING':
+                // Handle the need for transcoding
+                this.$store.commit('PUSH_NOTIFICATION', {
+                  type: 'warning',
+                  message: `Transcoding needed! It may take a while.<br>Video: ${!message.payload.isVideoTypeSupported}, audio: ${!message.payload.isAudioTypeSupported}.`
+                })
                 break
               default:
                 console.warn('PeerConnection: data: unknown type received', message.type)

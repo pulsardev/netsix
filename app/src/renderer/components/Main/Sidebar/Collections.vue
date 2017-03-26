@@ -15,10 +15,13 @@
       <div :id="'collapse' + uuids[index]" class="mt-1 collapse" role="tabpanel" :aria-labelledby="'heading' + uuids[index]">
         <div class="list-group">
           <a @click.prevent="selectFile(key, item)" v-if="value.length > 0" v-for="item in value" href="#" class="list-group-item list-group-item-action flex-column align-items-start" :class="{ active: isFileSelected(key, item), disabled: requestedFile.id }">
-            <div class="d-flex w-100 justify-content-between text-left" data-toggle="tooltip" data-placement="top" data-trigger="hover" :title="item.filename">
+            <div class="d-flex w-100 justify-content-between text-left">
               <div class="d-flex flex-column w-75">
-                <h6 class="mb-1 text-truncate">{{ item.filename }}</h6>
-                <small class="text-muted">{{ filesize(item.size) }}</small>
+                <h6 class="mb-1 text-truncate" :title="item.filename">{{ item.filename }}</h6>
+                <span>
+                  <i v-if="item.filename.split('.').pop() === 'mkv'" class="fa fa-exclamation-triangle" aria-hidden="true" title="This file is an MKV. The support for this type of file is still experimental."></i>
+                  <small class="text-muted">{{ filesize(item.size) }}</small>
+                </span>
                 <div v-if="requestedFile.id === item.id && transcodingProgress > 0" class="row align-items-center no-gutters progress-row">
                   <div class="col">
                     <div class="progress">
@@ -72,9 +75,6 @@
         transcodingProgress: state => state.video.transcodingProgress
       })
     },
-    mounted () {
-      this.initTooltips()
-    },
     methods: {
       uuidV4: uuidV4,
       filesize: filesize,
@@ -117,11 +117,6 @@
           return false
         }
       },
-      initTooltips () {
-        window.$('[data-toggle="tooltip"]').tooltip({
-          delay: {'show': 750, 'hide': 50}
-        })
-      },
       cancelTranscoding () {
         if (this.collectionType === 'local') {
           this.$store.dispatch('handleCancelTranscodingInformation')
@@ -135,9 +130,6 @@
       }
     },
     watch: {
-      collectionData: function () {
-        this.initTooltips()
-      },
       selectedFile: function () {
         window.scrollTo(0, 0)
       }
