@@ -87,6 +87,20 @@ $badge-padding-x:             .75em;
 $badge-padding-y:             .75em;
 
 
+// Modals
+
+$modal-content-bg:               $gray;
+$modal-content-border-color:     $gray-light;
+$modal-content-border-width:     0;
+
+$modal-backdrop-bg:           #000 !default;
+$modal-backdrop-opacity:      .75;
+$modal-header-border-color:   $modal-content-border-color;
+$modal-footer-border-color:   $modal-content-border-color;
+$modal-header-border-width:   $modal-content-border-width;
+$modal-footer-border-width:   $border-width;
+
+
 // Alerts
 //
 // Define alert colors, border radius, and padding.

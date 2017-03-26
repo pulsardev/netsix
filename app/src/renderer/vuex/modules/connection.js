@@ -30,7 +30,7 @@ const mutations = {
     state.status.isConnecting = payload
   },
   [types.TOGGLE_SIGNALING] (state) {
-    state.status.useSignaling = !state.status.useSignaling
+    state.useSignaling = !state.useSignaling
   },
   [types.UPDATE_SIGNALING_OFFER] (state, payload) {
     state.signalingOffer = payload

@@ -1,1 +1,6 @@
 @import "./bootstrap/bootstrap";
+
+.modal-header {
+  background-color: $gray-dark;
+  @include border-top-radius($border-radius-lg);
+}

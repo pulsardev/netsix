@@ -12,9 +12,13 @@
           <router-link tag="li" to="/" class="nav-item" exact>
             <a class="nav-link">Home</a>
           </router-link>
+
           <router-link tag="li" to="/about" class="nav-item" exact>
             <a class="nav-link">About</a>
           </router-link>
+
+          <options></options>
+
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Help</a>
             <div class="dropdown-menu" aria-labelledby="dropdown01">
@@ -39,9 +43,13 @@
 <script>
   import { mapState } from 'vuex'
   import { clipboard, remote } from 'electron'
+  import Options from './Navbar/Options'
 
   export default {
     name: 'navbar',
+    components: {
+      Options
+    },
     computed: {
       localId: function () {
         return this.useSignaling ? this.localPeerId : this.signalingOffer
