@@ -5,7 +5,10 @@
     <div v-if="Object.keys(collectionData).length > 0" v-for="(value, key, index) in collectionData" class="card" :class="{ 'mb-1': index !== Object.keys(collectionData).length - 1 }">
       <div class="btn-group">
         <a class="btn btn-block btn-secondary" role="tab" :id="'heading' + uuids[index]" data-toggle="collapse" data-parent="#accordion" :href="'#collapse' + uuids[index]" aria-expanded="true" :aria-controls="'collapse' + uuids[index]">{{ key }}</a>
-        <button v-if="collectionType === 'local'" @click="deleteCollection(key)" class="btn btn-danger btn-sm" type="button">
+        <button v-if="collectionType === 'local'" @click.prevent="openLocalDirectory(key)" class="btn btn-warning btn-sm" type="button">
+          <i class="fa fa-folder-open" aria-hidden="true"></i>
+        </button>
+        <button v-if="collectionType === 'local'" @click.prevent="deleteCollection(key)" class="btn btn-danger btn-sm" type="button">
           <span class="close" aria-hidden="true">&times;</span>
         </button>
       </div>
@@ -47,6 +50,7 @@
   import filesize from 'filesize'
   import path from 'path'
   import { db } from '../../../shared/db'
+  import { shell } from 'electron'
 
   const uuidV4 = require('uuid/v4')
 
@@ -125,6 +129,9 @@
           let peer = window.clientPeer._pcReady ? window.clientPeer : window.hostPeer
           peer.send(JSON.stringify({type: 'CANCEL_TRANSCODING_REQUEST'}))
         }
+      },
+      openLocalDirectory (folderPath) {
+        shell.openExternal(folderPath)
       }
     },
     watch: {
@@ -158,5 +165,9 @@
 
   .progress-row {
     margin-bottom: -0.5rem;
+  }
+
+  .btn-group .btn {
+    cursor: pointer;
   }
 </style>
