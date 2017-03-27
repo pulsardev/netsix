@@ -96,7 +96,8 @@ if (process.env.NODE_ENV === 'production') {
 
 let tray = null
 app.on('ready', () => {
-  tray = new Tray('app/icons/icon.ico')
+  let iconPath = process.env.NODE_ENV !== 'production' ? 'app/icons/icon.ico' : `${__dirname}/icons/icon.ico`
+  tray = new Tray(iconPath)
   tray.setToolTip('Netsix ' + app.getVersion())
 
   tray.on('click', () => {
