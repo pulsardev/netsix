@@ -2,6 +2,50 @@
 
 > Netsix allows you to share videos with your friends in a real peer-to-peer manner using WebRTC.
 
+[![Netsix](./screenshot.png "Netsix")](https://mmorainville.github.io/netsix-gh-pages/)
+
+## Table of Contents
+
+- [Getting Started](#getting-started)
+- [Disclaimer](#disclaimer)
+- [Roadmap](#roadmap)
+- [Build Setup](#build-setup)
+- [Git Commit Guidelines](#git-commit-guidelines)
+- [Something Missing?](#something-missing)
+
+## Getting Started
+
+You have to be two to test this application. So find a friend with some cool videos on his computer and then follow the steps described in the `Getting started` section of the [Netsix website][netsix-gh-pages].
+
+Be aware that a current limitation of the Netsix alpha is that we only handle 1-1 connections. If someone wants to connect to you, he will encounter an error if you are already connected to someone else.
+We plan to implement the support for simultaneous connections later as this is technically possible as described in the [simple-peer documentation](https://github.com/feross/simple-peer#connecting-more-than-2-peers).
+
+[netsix-gh-pages]: https://mmorainville.github.io/netsix-gh-pages/
+
+## Disclaimer
+
+This project is still in early alpha and a lot of improvements could be made.
+
+Also please note that we will not be responsible for any devious usage of the app. In its current state this project is more a technical demo of how to stream videos using WebRTC and the Media Source Extensions API than a really usable and full-featured software.
+
+With that in mind, if you want to make a PR to improve the app you are very welcome!
+
+## Roadmap
+
+Before hitting beta, we hope to have implemented the following features:
+
+* Handle multiple audio tracks
+* Handle subtitles
+* Improve the seeking in a video's timeline
+* Cross-platform compatibility
+* Mobile application
+* Friends management
+* Streaming of audio files
+* Manual connection via Facebook or Dropbox
+* Thumbnails in collections
+* Collections import/export
+* Handle connection to multiple peers at the same time
+
 ## Build Setup
 
 ``` bash
@@ -100,6 +144,10 @@ A detailed explanation can be found in this [document][commit-message-format].
 
 [angular-contributing]: https://raw.githubusercontent.com/angular/angular.js/master/CONTRIBUTING.md
 [commit-message-format]: https://docs.google.com/document/d/1QrDFcIiPjSLDn3EL15IJygNPiHORgU1_OOAqWjiDU5Y/edit#
+
+## Something Missing?
+
+If you have a feature request or found a bug, [let me know](https://github.com/mmorainville/netsix/issues).
 
 ---
 
