@@ -15,6 +15,8 @@
 
 ## Getting Started
 
+Download Netsix by visiting the ["releases"](https://github.com/pulsardev/netsix/releases) tab and selecting the executable of the last version (for example `Netsix-Setup-1.0.0-alpha.6.exe`).
+
 You have to be two to test this application. So find a friend with some cool videos on his computer and then follow the steps described in the `Getting started` section of the [Netsix website][netsix-gh-pages].
 
 Be aware that a current limitation of the Netsix alpha is that we only handle 1-1 connections. If someone wants to connect to you, he will encounter an error if you are already connected to someone else.
